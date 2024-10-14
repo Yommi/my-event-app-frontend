@@ -1,12 +1,24 @@
-import { Text, View, TextInput, Button } from 'react-native';
+import {
+  Text,
+  View,
+  TextInput,
+  Button,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import { Link } from 'expo-router';
 import { StyleSheet } from 'react-native';
 import { Dimensions } from 'react-native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
+import React, { useState } from 'react';
 
 export default function Index() {
+  const [errorMessage, setErrorMessage] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   const validationSchema = Yup.object().shape({
     email: Yup.string()
       .email('Invalid email')
@@ -24,6 +36,9 @@ export default function Index() {
           initialValues={{ email: '', password: '' }}
           validationSchema={validationSchema}
           onSubmit={async (values, actions) => {
+            setErrorMessage(''); // Clear error message on submit
+            setShowPassword(false);
+            setLoading(true);
             try {
               // Example API call using axios
               const response = await axios.post(
@@ -44,13 +59,18 @@ export default function Index() {
                   'Login failed:',
                   error.response?.data,
                   error
-                ); // Safely access response
+                );
+                setErrorMessage(
+                  error.response?.data?.message || 'Login failed'
+                );
               } else {
                 console.error('An unknown error occurred');
+                setErrorMessage('An unknown error occurred'); // Set a generic error message
               }
             } finally {
               // Reset form or perform post-submit actions
               actions.setSubmitting(false); // Stop form loading state
+              setLoading(false);
             }
           }}
         >
@@ -66,7 +86,10 @@ export default function Index() {
               <TextInput
                 style={styles.input}
                 placeholder="Email"
-                onChangeText={handleChange('email')}
+                onChangeText={(text) => {
+                  handleChange('email')(text);
+                  setErrorMessage(''); // Clear error message on input change
+                }}
                 onBlur={handleBlur('email')}
                 value={values.email}
               />
@@ -74,23 +97,46 @@ export default function Index() {
                 <Text style={styles.error}>{errors.email}</Text>
               )}
 
-              <TextInput
-                style={styles.input}
-                placeholder="Password"
-                secureTextEntry
-                onChangeText={handleChange('password')}
-                onBlur={handleBlur('password')}
-                value={values.password}
-              />
-              {touched.password && errors.password && (
-                <Text style={styles.error}>{errors.password}</Text>
-              )}
-              <View style={styles.submitContainer}>
-                <Button
-                  color={'white'}
-                  title="Submit"
-                  onPress={() => handleSubmit()}
+              <View>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Password"
+                  secureTextEntry={!showPassword} // Control visibility
+                  onChangeText={(text) => {
+                    handleChange('password')(text);
+                    setErrorMessage('');
+                  }}
+                  onBlur={handleBlur('password')}
+                  value={values.password}
                 />
+                {touched.password && errors.password && (
+                  <Text style={styles.error}>{errors.password}</Text>
+                )}
+                <TouchableOpacity
+                  onPress={() => setShowPassword(!showPassword)}
+                >
+                  <Text style={styles.showPasswordText}>
+                    {showPassword ? 'Hide Password' : 'Show Password'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              {errorMessage ? (
+                <Text style={styles.error}>{errorMessage}</Text>
+              ) : null}
+              <View style={styles.submitContainer}>
+                {loading ? (
+                  <ActivityIndicator size="small" color="#fff" /> // Loading indicator
+                ) : (
+                  <Button
+                    color={'white'}
+                    title="Submit"
+                    onPress={() => {
+                      handleSubmit();
+                      setErrorMessage('');
+                    }}
+                  />
+                )}
               </View>
             </View>
           )}
@@ -163,6 +209,7 @@ const styles = StyleSheet.create({
   linksContainer: {
     width: width * 0.8,
     height: height * 0.05,
+    marginBottom: height * 0.01,
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -170,5 +217,10 @@ const styles = StyleSheet.create({
   },
   linksText: {
     color: 'white',
+  },
+  showPasswordText: {
+    color: 'white',
+    marginTop: 10,
+    textAlign: 'right',
   },
 });
