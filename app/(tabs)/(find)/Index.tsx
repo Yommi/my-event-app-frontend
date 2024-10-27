@@ -1,19 +1,16 @@
-import { Text, SafeAreaView, View, StyleSheet, Dimensions } from 'react-native';
+import { SafeAreaView, Dimensions } from 'react-native';
+import LogoAndSearchBar from './LogoAndSearchBar';
+import EventList from './EventsList';
 
 export default function index() {
-  const style = StyleSheet.create({});
-
   return (
     <SafeAreaView className={styles.outerView}>
-      <View id="title-search-cont">
-        <Text className={'text-[white]'}>Start...</Text>
-      </View>
+      <LogoAndSearchBar />
+      <EventList />
     </SafeAreaView>
   );
 }
 
-const { width, height } = Dimensions.get('window');
-
 const styles = {
-  outerView: 'flex-1',
+  outerView: 'flex-1 mx-2',
 };
