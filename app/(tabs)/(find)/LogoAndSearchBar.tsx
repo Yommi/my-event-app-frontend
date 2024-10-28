@@ -31,7 +31,7 @@ export default function LogoAndSearchBar() {
 }
 
 const styles = {
-  logoSearchCont: 'w-full flex-row justify-between',
+  logoSearchCont: 'w-full flex-row justify-between pb-4',
   logo: 'flex-[1.5] bg-[#191827]',
   emptySpace: 'flex-[1]',
   searchContainer: 'flex-[7.5] flex-row items-center h-12 rounded-2xl px-3 bg-[#191827]',
