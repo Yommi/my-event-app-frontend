@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Text, View, Dimensions, ImageBackground, ActivityIndicator } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import { ScrollView } from 'react-native-gesture-handler';
 import axios from 'axios';
 const eventCover = require('../../../assets/images/default.jpg');
@@ -13,6 +14,7 @@ export default function EventList() {
     date: string;
     price: number;
     startTime: string;
+    private: boolean;
     // Add other properties of your data here if necessary, e.g., date, location, etc.
   }
 
@@ -23,7 +25,9 @@ export default function EventList() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://192.168.1.226:5000/api/v1/events');
+        const response = await axios.get(
+          'http://192.168.1.226:5000/api/v1/events/nearby?lat=-84.82550970170777&lng=33.9363830311417'
+        );
         setData(response.data.data);
       } catch (err) {
         console.log(err);
@@ -48,7 +52,9 @@ export default function EventList() {
   return (
     <ScrollView className={'flex-grow '} contentContainerStyle={{ paddingBottom: 20 }}>
       <View className={styles.eventGroupCont}>
-        <Text className={styles.eventGroupTitle}> (Event Group)...</Text>
+        <Text className={styles.eventGroupTitle}>
+          Nearby <Text className={'italic font-normal'}>(Within 10Km)</Text>{' '}
+        </Text>
         <View className={styles.eventGroupLine}></View>
       </View>
       {data.map((item, index) => (
@@ -74,10 +80,23 @@ export default function EventList() {
               <Text className={styles.eventInfoType}>Time:</Text> {item.startTime}
             </Text>
           </View>
-          <View className={'h-12 bg-blue-500 rounded-3xl mt-4 self-end mr-4'}>
-            <Text className={'text-white font-bold text-xl my-auto mx-6'}>
-              {item.price ? item.price : 'Free'}
-            </Text>
+          <View className={' pl-2 flex-row justify-between'}>
+            <View className={'h-12 bg-green-500 rounded-3xl mt-4 mr-4'}>
+              <Text className={'text-white font-bold text-xl my-auto mx-6'}>
+                {' '}
+                ${item.price ? item.price : 'Free'}
+              </Text>
+            </View>
+            {item.private ? (
+              <View className={' flex-row h-12 bg-black rounded-3xl mt-4 flex-end mr-4 px-6'}>
+                <Icon name="lock" size={20} color="#ffff" className={'my-auto mr-2'} />
+                <Text className={'text-white font-bold text-xl my-auto'}>Private</Text>
+              </View>
+            ) : (
+              <View className={'h-12 bg-black rounded-3xl mt-4 flex-end mr-4'}>
+                <Text className={'text-white font-bold text-xl my-auto mx-6'}>Public</Text>
+              </View>
+            )}
           </View>
         </View>
       ))}

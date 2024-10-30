@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Text, TextInput, View, Dimensions } from 'react-native';
+import { Text, TextInput, View, ImageBackground, Dimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+const logo = require('../../../assets/images/logo.jpg'); //Placeholder logo
 
 export default function LogoAndSearchBar() {
   const { width, height } = Dimensions.get('window');
@@ -14,7 +15,7 @@ export default function LogoAndSearchBar() {
 
   return (
     <View className={styles.logoSearchCont}>
-      <View className={styles.logo}></View>
+      <ImageBackground source={logo} resizeMode="cover" className={styles.logo}></ImageBackground>
       <View className={styles.emptySpace}></View>
       <View className={styles.searchContainer}>
         <Icon name="search" size={20} color="#ccc" className={styles.searchIcon} />
