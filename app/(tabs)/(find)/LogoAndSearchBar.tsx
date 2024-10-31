@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Text, TextInput, View, ImageBackground, Dimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-const logo = require('../../../assets/images/logo.jpg'); //Placeholder logo
 
 export default function LogoAndSearchBar() {
   const { width, height } = Dimensions.get('window');
@@ -15,7 +14,11 @@ export default function LogoAndSearchBar() {
 
   return (
     <View className={styles.logoSearchCont}>
-      <ImageBackground source={logo} resizeMode="cover" className={styles.logo}></ImageBackground>
+      <ImageBackground
+        source={{ uri: `http://192.168.1.226:5000/api/v1/images/logo.jpg` }} //Placeholder logo
+        resizeMode="cover"
+        className={styles.logo}
+      ></ImageBackground>
       <View className={styles.emptySpace}></View>
       <View className={styles.searchContainer}>
         <Icon name="search" size={20} color="#ccc" className={styles.searchIcon} />
@@ -35,6 +38,6 @@ const styles = {
   logoSearchCont: 'w-full flex-row justify-between pb-4',
   logo: 'flex-[1.5] bg-[#191827]',
   emptySpace: 'flex-[1]',
-  searchContainer: 'flex-[7.5] flex-row items-center h-12 rounded-2xl px-3 bg-[#191827]',
+  searchContainer: 'flex-[7.5] flex-row items-center h-12 rounded-full px-3 bg-[#191827]',
   searchIcon: 'mr-4',
 };

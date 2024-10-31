@@ -3,7 +3,6 @@ import { Text, View, Dimensions, ImageBackground, ActivityIndicator } from 'reac
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { ScrollView } from 'react-native-gesture-handler';
 import axios from 'axios';
-const eventCover = require('../../../assets/images/default.jpg');
 
 export default function EventList() {
   interface Event {
@@ -15,6 +14,7 @@ export default function EventList() {
     price: number;
     startTime: string;
     private: boolean;
+    displayCover: string;
     // Add other properties of your data here if necessary, e.g., date, location, etc.
   }
 
@@ -60,7 +60,7 @@ export default function EventList() {
       {data.map((item, index) => (
         <View key={index} className={styles.eventCont}>
           <ImageBackground
-            source={eventCover}
+            source={{ uri: `http://192.168.1.226:5000/api/v1/images/${item.displayCover}` }}
             className={styles.eventCover}
             resizeMode="cover"
             style={{ height: height * 0.2 }}
@@ -81,19 +81,18 @@ export default function EventList() {
             </Text>
           </View>
           <View className={' pl-2 flex-row justify-between'}>
-            <View className={'h-12 bg-green-500 rounded-3xl mt-4 mr-4'}>
+            <View className={'h-12 bg-green-500 rounded-full mt-4 mr-4'}>
               <Text className={'text-white font-bold text-xl my-auto mx-6'}>
-                {' '}
                 ${item.price ? item.price : 'Free'}
               </Text>
             </View>
             {item.private ? (
-              <View className={' flex-row h-12 bg-black rounded-3xl mt-4 flex-end mr-4 px-6'}>
+              <View className={' flex-row h-12 bg-black rounded-full mt-4 flex-end mr-4 px-6'}>
                 <Icon name="lock" size={20} color="#ffff" className={'my-auto mr-2'} />
                 <Text className={'text-white font-bold text-xl my-auto'}>Private</Text>
               </View>
             ) : (
-              <View className={'h-12 bg-black rounded-3xl mt-4 flex-end mr-4'}>
+              <View className={'h-12 bg-black rounded-full mt-4 flex-end mr-4'}>
                 <Text className={'text-white font-bold text-xl my-auto mx-6'}>Public</Text>
               </View>
             )}
