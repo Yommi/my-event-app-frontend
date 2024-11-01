@@ -1,8 +1,8 @@
 import { Tabs } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import Feather from '@expo/vector-icons/Feather';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
 export default function () {
@@ -27,21 +27,19 @@ export default function () {
         }}
       />
       <Tabs.Screen
+        name="(create)"
+        options={{
+          title: 'Create Event',
+          headerShown: false,
+          tabBarIcon: ({ color }) => <FontAwesome6 name="add" size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="(myEvents)"
         options={{
           title: 'My Events',
           headerShown: false,
           tabBarIcon: ({ color }) => <Feather name="user-check" size={size} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="(create)"
-        options={{
-          title: 'Create Event',
-          headerShown: false,
-          tabBarIcon: ({ color }) => (
-            <MaterialIcons name="add-circle-outline" size={size} color={color} />
-          ),
         }}
       />
       <Tabs.Screen

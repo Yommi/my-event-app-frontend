@@ -3,7 +3,7 @@ import { Stack } from 'expo-router';
 export default function ComponentName() {
   return (
     <Stack>
-      <Stack.Screen name="Index" options={{ headerShown: false }} />
+      <Stack.Screen name="index" options={{ headerShown: false }} />
     </Stack>
   );
 }
