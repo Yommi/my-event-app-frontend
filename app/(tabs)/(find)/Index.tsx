@@ -1,14 +1,18 @@
+// index.tsx
 import { SafeAreaView, Dimensions } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import LogoAndSearchBar from './LogoAndSearchBar';
 import EventList from './EventsList';
+import { EventProvider } from './EventProvider'; // Import the context provider
 
-export default function index() {
+export default function Index() {
   return (
     <GestureHandlerRootView className="flex-1">
       <SafeAreaView className={styles.outerView}>
-        <LogoAndSearchBar />
-        <EventList />
+        <EventProvider>
+          <LogoAndSearchBar />
+          <EventList />
+        </EventProvider>
       </SafeAreaView>
     </GestureHandlerRootView>
   );
