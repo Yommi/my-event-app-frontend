@@ -1,4 +1,3 @@
-// EventContext.tsx
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -9,6 +8,7 @@ interface Event {
   };
   date: string;
   price: number;
+  currency: string;
   startTime: string;
   private: boolean;
   displayCover: string;
@@ -33,10 +33,16 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const fetchData = async () => {
     try {
-      const response = await axios.get(
+      const nearbyResponse = await axios.get(
         'http://192.168.1.226:5000/api/v1/events/nearby?lat=-84.82550970170777&lng=33.9363830311417'
       );
-      setEvents(response.data.data);
+      const outsideResponse = await axios.get(
+        'http://192.168.1.226:5000/api/v1/events/far?lat=-84.82550970170777&lng=33.9363830311417'
+      );
+
+      // Merge nearby and outside events
+      const combinedEvents = [...nearbyResponse.data.data, ...outsideResponse.data.data];
+      setEvents(combinedEvents);
     } catch (err) {
       setError(true);
       console.error(err);

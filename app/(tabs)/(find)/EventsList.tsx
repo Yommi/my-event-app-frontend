@@ -9,10 +9,12 @@ import {
   TouchableWithoutFeedback,
   RefreshControl,
   FlatList,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
 } from 'react-native';
 import { useScrollToTop } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { EventContext } from './EventProvider'; // Import the context
+import { EventContext } from './EventProvider';
 
 export default function EventList() {
   const ref = React.useRef(null);
@@ -28,7 +30,7 @@ export default function EventList() {
   // Handle error state
   if (error) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View className={'flex-1 justify-center items-center'}>
         <Text className={'text-white'}>Failed to load page. Please refresh!</Text>
       </View>
     );
@@ -41,6 +43,7 @@ export default function EventList() {
     };
     date: string;
     price: number;
+    currency: string;
     startTime: string;
     private: boolean;
     displayCover: string;
@@ -79,7 +82,8 @@ export default function EventList() {
         <View className={'pl-2 flex-row justify-between'}>
           <View className={'h-12 bg-green-500 rounded-full mt-4 mr-4'}>
             <Text className={'text-white font-bold text-xl my-auto mx-6'}>
-              ${item.price ? item.price.toFixed(2) : 'Free'}
+              {item.currency ? item.currency.toUpperCase() : ''}{' '}
+              {item.price ? item.price.toFixed(2) : 'Free'}
             </Text>
           </View>
           {item.private ? (
@@ -99,12 +103,6 @@ export default function EventList() {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <View className={styles.eventGroupCont}>
-        <Text className={styles.eventGroupTitle}>
-          Nearby <Text className={'italic font-normal'}>(Within 10Km)</Text>
-        </Text>
-        <View className={styles.eventGroupLine}></View>
-      </View>
       <FlatList
         ref={ref}
         data={events}
@@ -119,10 +117,10 @@ export default function EventList() {
 
 const { width, height } = Dimensions.get('window');
 const styles = {
-  eventGroupCont: 'mt-2',
-  eventGroupTitle: 'text-white text-lg font-bold mx-auto mb-1',
-  eventGroupLine: 'w-full h-[1%] bg-gray-500',
-  eventCont: 'flex justify-between mt-8 mx-2 bg-[#191827] rounded-2xl w-[95%] pb-6',
+  // eventGroupCont: 'mt-2',
+  // eventGroupTitle: 'text-white text-lg font-bold mx-auto mb-1',
+  // eventGroupLine: 'w-full h-[1%] bg-gray-500',
+  eventCont: 'flex justify-between mt-8 mx-auto bg-[#191827] rounded-2xl w-[95%] pb-6',
   eventCover: 'rounded-2xl flex-1 justify-center items-center',
   eventInfoCont: 'mt-4 p-2',
   eventInfoType: 'font-bold text-xl text-yellow-200',
