@@ -5,6 +5,7 @@ interface Event {
   name: string;
   location: {
     address: string;
+    coordinates: [number, number];
   };
   date: string;
   price: number;
@@ -66,3 +67,5 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     </EventContext.Provider>
   );
 };
+
+export default EventProvider;

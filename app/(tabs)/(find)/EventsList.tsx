@@ -9,8 +9,6 @@ import {
   TouchableWithoutFeedback,
   RefreshControl,
   FlatList,
-  NativeSyntheticEvent,
-  NativeScrollEvent,
 } from 'react-native';
 import { useScrollToTop } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -19,7 +17,6 @@ import { EventContext } from './EventProvider';
 export default function EventList() {
   const ref = React.useRef(null);
   useScrollToTop(ref);
-
   const { events, loading, error, refreshData } = useContext(EventContext)!;
 
   // Handle loading state
