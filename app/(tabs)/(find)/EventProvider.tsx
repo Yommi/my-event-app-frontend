@@ -19,7 +19,8 @@ interface Event {
 }
 
 interface EventContextType {
-  events: Event[];
+  nearbyEvents: Event[];
+  outsideEvents: Event[];
   loading: boolean;
   error: boolean;
   refreshData: () => Promise<void>;
@@ -31,6 +32,8 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [nearbyEvents, setNearbyEvents] = useState<Event[]>([]);
+  const [outsideEvents, setOutsideEvents] = useState<Event[]>([]);
 
   const fetchData = async () => {
     try {
@@ -42,8 +45,8 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       );
 
       // Merge nearby and outside events
-      const combinedEvents = [...nearbyResponse.data.data, ...outsideResponse.data.data];
-      setEvents(combinedEvents);
+      setNearbyEvents(nearbyResponse.data.data);
+      setOutsideEvents(outsideResponse.data.data);
     } catch (err) {
       setError(true);
       console.error(err);
@@ -62,7 +65,7 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   return (
-    <EventContext.Provider value={{ events, loading, error, refreshData }}>
+    <EventContext.Provider value={{ nearbyEvents, outsideEvents, loading, error, refreshData }}>
       {children}
     </EventContext.Provider>
   );

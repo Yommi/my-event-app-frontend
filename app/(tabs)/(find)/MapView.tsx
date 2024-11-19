@@ -1,6 +1,14 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { View, ActivityIndicator } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import {
+  View,
+  Text,
+  ActivityIndicator,
+  TouchableWithoutFeedback,
+  Dimensions,
+  ImageBackground,
+} from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import MapView, { Marker, Callout } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { EventContext } from './EventProvider';
 
@@ -9,7 +17,8 @@ export default function App() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const { events } = useContext(EventContext)!;
+  const { nearbyEvents, outsideEvents } = useContext(EventContext)!;
+  const events = [...nearbyEvents, ...outsideEvents];
 
   // Get the user's location when the component mounts
   useEffect(() => {
@@ -65,11 +74,74 @@ export default function App() {
               latitude: event.location.coordinates[0],
               longitude: event.location.coordinates[1],
             }}
-            title={event.name}
-            description={`Hosted by: ${event.host.username || 'Anonymous'}`}
-          />
+          >
+            <Callout tooltip>
+              <TouchableWithoutFeedback>
+                <View className={styles.eventCont}>
+                  <ImageBackground
+                    source={{
+                      uri: `http://192.168.1.226:5000/api/v1/images/${event.displayCover}`,
+                    }}
+                    style={{ height: height * 0.2, overflow: 'hidden' }}
+                    resizeMode="cover"
+                  />
+                  <View className={styles.eventInfoCont}>
+                    <Text className={styles.eventName}>
+                      <Text className={styles.eventInfoType}>Name:</Text> {event.name}
+                    </Text>
+                    <Text className={styles.eventAddress}>
+                      <Text className={styles.eventInfoType}>Address:</Text>{' '}
+                      {event.location.address}
+                    </Text>
+                    <Text className={styles.eventDate}>
+                      <Text className={styles.eventInfoType}>Date:</Text>{' '}
+                      {new Date(event.date).toLocaleDateString()}
+                    </Text>
+                    <Text className={styles.eventTime}>
+                      <Text className={styles.eventInfoType}>Time:</Text> {event.startTime}
+                    </Text>
+                    <Text className={styles.eventBy}>
+                      <Text className={styles.eventInfoType}>By:</Text> @{event.host.username}
+                    </Text>
+                  </View>
+                  <View className={'pl-2 flex-row justify-between'}>
+                    <View className={'h-12 bg-green-500 rounded-full mt-4 mr-4'}>
+                      <Text className={'text-white font-bold text-xl my-auto mx-6'}>
+                        {event.currency ? event.currency.toUpperCase() : ''}{' '}
+                        {event.price ? event.price.toFixed(2) : 'Free'}
+                      </Text>
+                    </View>
+                    {event.private ? (
+                      <View
+                        className={'flex-row h-12 bg-black rounded-full mt-4 flex-end mr-4 px-6'}
+                      >
+                        <Icon name="lock" size={20} color="#ffff" className={'my-auto mr-2'} />
+                        <Text className={'text-white font-bold text-xl my-auto'}>Private</Text>
+                      </View>
+                    ) : (
+                      <View className={'h-12 bg-black rounded-full mt-4 flex-end mr-4'}>
+                        <Text className={'text-white font-bold text-xl my-auto mx-6'}>Public</Text>
+                      </View>
+                    )}
+                  </View>
+                </View>
+              </TouchableWithoutFeedback>
+            </Callout>
+          </Marker>
         ))}
       </MapView>
     </View>
   );
 }
+
+const { width, height } = Dimensions.get('window');
+const styles = {
+  eventCont: 'mt-8 mx-auto bg-[#191827] rounded-2xl w-full pb-6',
+  eventInfoCont: 'mt-4 p-2',
+  eventInfoType: 'font-bold text-xl text-yellow-200',
+  eventName: 'text-white font-bold text-xl',
+  eventAddress: 'text-white mt-2',
+  eventDate: 'text-white mt-2',
+  eventTime: 'text-white mt-2',
+  eventBy: 'text-gray-500 mt-2',
+};

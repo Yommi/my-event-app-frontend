@@ -17,7 +17,7 @@ import { EventContext } from './EventProvider';
 export default function EventList() {
   const ref = React.useRef(null);
   useScrollToTop(ref);
-  const { events, loading, error, refreshData } = useContext(EventContext)!;
+  const { nearbyEvents, outsideEvents, loading, error, refreshData } = useContext(EventContext)!;
 
   // Handle loading state
   if (loading) {
@@ -54,7 +54,7 @@ export default function EventList() {
       <View className={styles.eventCont}>
         <ImageBackground
           source={{ uri: `http://192.168.1.226:5000/api/v1/images/${item.displayCover}` }}
-          className={styles.eventCover}
+          // className={styles.eventCover}
           resizeMode="cover"
           style={{ height: height * 0.2 }}
         />
@@ -100,25 +100,55 @@ export default function EventList() {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <FlatList
-        ref={ref}
-        data={events}
-        renderItem={renderItem}
-        keyExtractor={(item, index) => index.toString()}
-        refreshControl={<RefreshControl refreshing={loading} onRefresh={refreshData} />}
-        contentContainerStyle={{ paddingBottom: 30 }}
-      />
+      {nearbyEvents.length === 0 && outsideEvents.length === 0 ? (
+        <View className="flex-1 justify-center items-center">
+          <Text className="text-white">No events found.</Text>
+        </View>
+      ) : (
+        <FlatList
+          ref={ref}
+          data={[...nearbyEvents, ...outsideEvents]}
+          renderItem={({ item, index }) => {
+            if (index === 0 && nearbyEvents.length > 0) {
+              return (
+                <>
+                  <View className={styles.eventGroupCont}>
+                    <Text className={styles.eventGroupTitle}>Nearby Events (Within 10km)</Text>
+                    <View className={styles.eventGroupLine}></View>
+                  </View>
+                  {renderItem({ item })}
+                </>
+              );
+            }
+            if (index === nearbyEvents.length && outsideEvents.length > 0) {
+              return (
+                <>
+                  <View className={styles.eventGroupCont}>
+                    <Text className={styles.eventGroupTitle}>Events outside 10km radius</Text>
+                    <View className={styles.eventGroupLine}></View>
+                  </View>
+                  {renderItem({ item })}
+                </>
+              );
+            }
+            return renderItem({ item });
+          }}
+          keyExtractor={(item, index) => index.toString()}
+          refreshControl={<RefreshControl refreshing={loading} onRefresh={refreshData} />}
+          contentContainerStyle={{ paddingBottom: 30 }}
+        />
+      )}
     </SafeAreaView>
   );
 }
 
 const { width, height } = Dimensions.get('window');
 const styles = {
-  // eventGroupCont: 'mt-2',
-  // eventGroupTitle: 'text-white text-lg font-bold mx-auto mb-1',
-  // eventGroupLine: 'w-full h-[1%] bg-gray-500',
+  eventGroupCont: 'mt-4 mb-3',
+  eventGroupTitle: 'text-white text-lg font-bold mx-auto mb-1',
+  eventGroupLine: 'w-full h-[0.5] bg-gray-500',
   eventCont: 'flex justify-between mt-8 mx-auto bg-[#191827] rounded-2xl w-[95%] pb-6',
-  eventCover: 'rounded-2xl flex-1 justify-center items-center',
+  // eventCover: 'rounded-2xl flex-1 justify-center items-center',
   eventInfoCont: 'mt-4 p-2',
   eventInfoType: 'font-bold text-xl text-yellow-200',
   eventName: 'text-white font-bold text-xl',
