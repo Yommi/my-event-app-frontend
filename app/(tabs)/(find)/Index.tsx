@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { SafeAreaView } from 'react-native';
+import { SafeAreaView, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import LogoAndSearchBar from './LogoAndSearchBar';
 import EventList from './EventsList';
@@ -16,7 +16,12 @@ export default function Index() {
         <EventProvider>
           <LogoAndSearchBar />
           <AnimatedTabBar activeTab={activeTab} setActiveTab={setActiveTab} />
-          {activeTab === 'card' ? <EventList /> : <MapView />}
+          <View style={{ display: activeTab === 'card' ? 'flex' : 'none', flex: 1 }}>
+            <EventList />
+          </View>
+          <View style={{ display: activeTab === 'map' ? 'flex' : 'none', flex: 1 }}>
+            <MapView />
+          </View>
         </EventProvider>
       </SafeAreaView>
     </GestureHandlerRootView>

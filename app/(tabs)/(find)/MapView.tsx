@@ -15,6 +15,7 @@ import Constants from 'expo-constants';
 
 export default function App() {
   const [location, setLocation] = useState<any>(null);
+  const [region, setRegion] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -47,6 +48,24 @@ export default function App() {
         // Get the user's current location
         const userLocation = await Location.getCurrentPositionAsync({});
         setLocation(userLocation.coords);
+        setRegion({
+          latitude: userLocation.coords.latitude,
+          longitude: userLocation.coords.longitude,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        });
+
+        Location.watchPositionAsync(
+          { accuracy: Location.Accuracy.High, timeInterval: 1000, distanceInterval: 10 },
+          (newLocation) => {
+            setLocation(newLocation.coords);
+            setRegion((prevRegion: typeof region | null) => ({
+              ...prevRegion,
+              latitude: newLocation.coords.latitude,
+              longitude: newLocation.coords.longitude,
+            }));
+          },
+        );
       } catch (error) {
         console.error(error);
         setError('Failed to fetch location');
@@ -75,12 +94,8 @@ export default function App() {
         showsMyLocationButton={true}
         showsCompass={true}
         showsUserLocation={true}
-        initialRegion={{
-          latitude: location.latitude,
-          longitude: location.longitude,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        }}
+        region={region}
+        onRegionChangeComplete={(newRegion) => setRegion(newRegion)}
       >
         {events.map((event, index) => (
           <Marker
