@@ -8,9 +8,10 @@ import {
   ImageBackground,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import MapView, { Marker, Callout } from 'react-native-maps';
+import MapView, { Marker, Callout, PROVIDER_GOOGLE } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { EventContext } from './EventProvider';
+import Constants from 'expo-constants';
 
 export default function App() {
   const [location, setLocation] = useState<any>(null);
@@ -19,6 +20,18 @@ export default function App() {
 
   const { nearbyEvents, outsideEvents } = useContext(EventContext)!;
   const events = [...nearbyEvents, ...outsideEvents];
+
+  interface ExtraConfig {
+    API_URL: string;
+  }
+
+  // Extract the extra config using type assertion
+  const extra = Constants.expoConfig?.extra as ExtraConfig;
+
+  // Check if the extra object is available
+  if (!extra) {
+    throw new Error('API_URL is not defined in extra config.');
+  }
 
   // Get the user's location when the component mounts
   useEffect(() => {
@@ -59,6 +72,8 @@ export default function App() {
     <View style={{ flex: 1 }}>
       <MapView
         style={{ flex: 1 }}
+        showsMyLocationButton={true}
+        showsCompass={true}
         showsUserLocation={true}
         initialRegion={{
           latitude: location.latitude,
@@ -80,7 +95,7 @@ export default function App() {
                 <View className={styles.eventCont}>
                   <ImageBackground
                     source={{
-                      uri: `http://192.168.1.226:5000/api/v1/images/${event.displayCover}`,
+                      uri: `${extra.API_URL}/images/${event.displayCover}`,
                     }}
                     style={{ height: height * 0.2, overflow: 'hidden' }}
                     resizeMode="cover"

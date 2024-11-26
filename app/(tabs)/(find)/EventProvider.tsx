@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import Constants from 'expo-constants';
 
 interface Event {
   name: string;
@@ -28,6 +29,18 @@ interface EventContextType {
 
 export const EventContext = createContext<EventContextType | undefined>(undefined);
 
+interface ExtraConfig {
+  API_URL: string;
+}
+
+// Extract the extra config using type assertion
+const extra = Constants.expoConfig?.extra as ExtraConfig;
+
+// Check if the extra object is available
+if (!extra) {
+  throw new Error('API_URL is not defined in extra config.');
+}
+
 export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,10 +51,10 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const fetchData = async () => {
     try {
       const nearbyResponse = await axios.get(
-        'http://192.168.1.226:5000/api/v1/events/nearby?lat=-84.82550970170777&lng=33.9363830311417'
+        `${extra.API_URL}/events/nearby?lat=-84.82550970170777&lng=33.9363830311417`
       );
       const outsideResponse = await axios.get(
-        'http://192.168.1.226:5000/api/v1/events/far?lat=-84.82550970170777&lng=33.9363830311417'
+        `${extra.API_URL}/events/far?lat=-84.82550970170777&lng=33.9363830311417`
       );
 
       // Merge nearby and outside events

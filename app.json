@@ -14,22 +14,14 @@
     },
     "ios": {
       "supportsTablet": true,
-      "config": {
-        "googleMaps": {
-          "apiKey": "AIzaSyB_v16-ON9HRAx3iBX3N75Jj4IKTTkMSZs"
-        }
-      }
+      "config": {}
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "config": {
-        "googleMaps": {
-          "apiKey": "AIzaSyB_v16-ON9HRAx3iBX3N75Jj4IKTTkMSZs"
-        }
-      }
+      "config": {}
     },
     "web": {
       "bundler": "metro",
@@ -40,6 +32,9 @@
     "experiments": {
       "typedRoutes": true
     },
-    "newArchEnabled": true
+    "newArchEnabled": true,
+    "extra": {
+      "API_URL": "http://192.168.1.226:5000/api/v1"
+    }
   }
 }

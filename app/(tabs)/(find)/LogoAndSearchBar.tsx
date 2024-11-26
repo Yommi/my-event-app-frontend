@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Text, TextInput, View, ImageBackground, Dimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import Constants from 'expo-constants';
 
 export default function LogoAndSearchBar() {
   const { width, height } = Dimensions.get('window');
@@ -12,10 +13,22 @@ export default function LogoAndSearchBar() {
     console.log('Searching for:', text);
   };
 
+  interface ExtraConfig {
+    API_URL: string;
+  }
+
+  // Extract the extra config using type assertion
+  const extra = Constants.expoConfig?.extra as ExtraConfig;
+
+  // Check if the extra object is available
+  if (!extra) {
+    throw new Error('API_URL is not defined in extra config.');
+  }
+
   return (
     <View className={styles.logoSearchCont}>
       <ImageBackground
-        source={{ uri: `http://192.168.1.226:5000/api/v1/images/logo.jpg` }} //Placeholder logo
+        source={{ uri: `${extra.API_URL}/images/logo.jpg` }} //Placeholder logo
         resizeMode="cover"
         className={styles.logo}
       ></ImageBackground>
