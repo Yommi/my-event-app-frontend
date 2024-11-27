@@ -14,7 +14,7 @@ export default function Index() {
     <GestureHandlerRootView className="flex-1">
       <SafeAreaView className="flex-1 px-2">
         <EventProvider>
-          <LogoAndSearchBar />
+          <LogoAndSearchBar activeTab={activeTab} />
           <AnimatedTabBar activeTab={activeTab} setActiveTab={setActiveTab} />
           <View style={{ display: activeTab === 'card' ? 'flex' : 'none', flex: 1 }}>
             <EventList />

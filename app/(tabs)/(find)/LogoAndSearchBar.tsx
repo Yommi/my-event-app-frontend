@@ -1,11 +1,13 @@
 import React, { useState, useContext } from 'react';
-import { TextInput, View, ImageBackground, Dimensions } from 'react-native';
+import { Text, TextInput, View, ImageBackground, Dimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Constants from 'expo-constants';
-import axios from 'axios';
 import { EventContext } from './EventProvider';
 
-export default function LogoAndSearchBar() {
+interface Props {
+  activeTab: 'card' | 'map';
+}
+export default function LogoAndSearchBar({ activeTab }: Props) {
   const { fetchData, searchText, setSearchText } = useContext(EventContext)!;
 
   const handleSearch = (text: string) => {
@@ -26,7 +28,7 @@ export default function LogoAndSearchBar() {
     throw new Error('API_URL is not defined in extra config.');
   }
 
-  return (
+  return activeTab === 'card' ? (
     <View className={styles.logoSearchCont}>
       <ImageBackground
         source={{ uri: `${extra.API_URL}/images/logo.jpg` }} //Placeholder logo
@@ -44,6 +46,10 @@ export default function LogoAndSearchBar() {
           onChangeText={handleSearch}
         />
       </View>
+    </View>
+  ) : (
+    <View className="w-full flex justify-center pb-4 h-14">
+      <Text className="text-white text-center font-bold text-4xl">Evently</Text>
     </View>
   );
 }

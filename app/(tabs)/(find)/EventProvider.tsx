@@ -62,6 +62,8 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         `${extra.API_URL}/events/far?lat=-84.82550970170777&lng=33.9363830311417${query ? `&query=${query}` : ''}`,
       );
 
+      // fetch logo
+
       // Merge nearby and outside events
       setNearbyEvents(nearbyResponse.data.data);
       setOutsideEvents(outsideResponse.data.data);

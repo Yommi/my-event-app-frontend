@@ -5,7 +5,6 @@ interface AnimatedTabBarProps {
   activeTab: 'card' | 'map';
   setActiveTab: (tab: 'card' | 'map') => void;
 }
-
 const AnimatedTabBar: React.FC<AnimatedTabBarProps> = ({ activeTab, setActiveTab }) => {
   return (
     <View className="flex-row justify-around items-center h-16 w-[95%] mx-auto rounded-lg mb-2 overflow-hidden">
