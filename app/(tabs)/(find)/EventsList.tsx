@@ -18,7 +18,8 @@ import Constants from 'expo-constants';
 export default function EventList() {
   const ref = React.useRef(null);
   useScrollToTop(ref);
-  const { nearbyEvents, outsideEvents, loading, error, refreshData } = useContext(EventContext)!;
+  const { nearbyEvents, outsideEvents, loading, refreshLoading, error, refreshData } =
+    useContext(EventContext)!;
 
   // Handle loading state
   if (loading) {
@@ -36,7 +37,7 @@ export default function EventList() {
     startTime: string;
     private: boolean;
     displayCover: string;
-    host: {
+    hostDetails: {
       username: string;
     };
   }
@@ -77,7 +78,7 @@ export default function EventList() {
             <Text className={styles.eventInfoType}>Time:</Text> {item.startTime}
           </Text>
           <Text className={styles.eventBy}>
-            <Text className={styles.eventInfoType}>By:</Text> @{item.host.username}
+            <Text className={styles.eventInfoType}>By:</Text> @{item.hostDetails.username}
           </Text>
         </View>
         <View className={'pl-2 flex-row justify-between'}>
@@ -133,7 +134,7 @@ export default function EventList() {
           return renderItem({ item });
         }}
         keyExtractor={(item, index) => index.toString()}
-        refreshControl={<RefreshControl refreshing={loading} onRefresh={refreshData} />}
+        refreshControl={<RefreshControl refreshing={refreshLoading} onRefresh={refreshData} />}
         contentContainerStyle={{ paddingBottom: 30 }}
         ListEmptyComponent={
           error ? (
@@ -142,7 +143,7 @@ export default function EventList() {
             </View>
           ) : (
             <View className={`flex-1 justify-center items-center`} style={{ height: height * 0.7 }}>
-              <Text className={'text-white'}>No data available</Text>
+              <Text className={'text-white'}>No Events Found 🥲</Text>
             </View>
           )
         }
@@ -153,7 +154,7 @@ export default function EventList() {
 
 const { width, height } = Dimensions.get('window');
 const styles = {
-  eventGroupCont: 'mt-4 mb-3',
+  eventGroupCont: 'mt-3 mb-2',
   eventGroupTitle: 'text-white text-lg font-bold mx-auto mb-1',
   eventGroupLine: 'w-full h-[0.5] bg-gray-500',
   eventCont: 'flex justify-between mt-8 mx-auto bg-[#191827] rounded-2xl w-[95%] pb-6',

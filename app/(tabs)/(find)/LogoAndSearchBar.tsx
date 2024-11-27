@@ -1,16 +1,17 @@
-import React, { useState } from 'react';
-import { Text, TextInput, View, ImageBackground, Dimensions } from 'react-native';
+import React, { useState, useContext } from 'react';
+import { TextInput, View, ImageBackground, Dimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Constants from 'expo-constants';
+import axios from 'axios';
+import { EventContext } from './EventProvider';
 
 export default function LogoAndSearchBar() {
-  const { width, height } = Dimensions.get('window');
-  const [searchText, setSearchText] = useState<string>('');
+  const { fetchData, searchText, setSearchText } = useContext(EventContext)!;
 
   const handleSearch = (text: string) => {
     setSearchText(text);
     // Place the search logic here
-    console.log('Searching for:', text);
+    fetchData(text);
   };
 
   interface ExtraConfig {
@@ -36,8 +37,8 @@ export default function LogoAndSearchBar() {
       <View className={styles.searchContainer}>
         <Icon name="search" size={20} color="#ccc" className={styles.searchIcon} />
         <TextInput
-          className={' text-white '}
-          placeholder="Search here..."
+          className={' text-white w-full h-full '}
+          placeholder="Search..."
           placeholderTextColor="#ccc"
           value={searchText}
           onChangeText={handleSearch}
@@ -46,6 +47,8 @@ export default function LogoAndSearchBar() {
     </View>
   );
 }
+
+const { width, height } = Dimensions.get('window');
 
 const styles = {
   logoSearchCont: 'w-full flex-row justify-between pb-4',

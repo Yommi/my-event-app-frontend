@@ -131,7 +131,8 @@ export default function App() {
                       <Text className={styles.eventInfoType}>Time:</Text> {event.startTime}
                     </Text>
                     <Text className={styles.eventBy}>
-                      <Text className={styles.eventInfoType}>By:</Text> @{event.host.username}
+                      <Text className={styles.eventInfoType}>By:</Text> @
+                      {event.hostDetails.username}
                     </Text>
                   </View>
                   <View className={'pl-2 flex-row justify-between'}>

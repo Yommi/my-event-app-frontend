@@ -14,7 +14,7 @@ interface Event {
   startTime: string;
   private: boolean;
   displayCover: string;
-  host: {
+  hostDetails: {
     username: string;
   };
 }
@@ -23,8 +23,12 @@ interface EventContextType {
   nearbyEvents: Event[];
   outsideEvents: Event[];
   loading: boolean;
+  refreshLoading: boolean;
   error: boolean;
   refreshData: () => Promise<void>;
+  fetchData: () => Promise<void>;
+  searchText: string;
+  setSearchText: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export const EventContext = createContext<EventContextType | undefined>(undefined);
@@ -42,19 +46,20 @@ if (!extra) {
 }
 
 export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshLoading, setRefreshLoading] = useState(true);
   const [error, setError] = useState(false);
   const [nearbyEvents, setNearbyEvents] = useState<Event[]>([]);
   const [outsideEvents, setOutsideEvents] = useState<Event[]>([]);
+  const [searchText, setSearchText] = useState<string>('');
 
-  const fetchData = async () => {
+  const fetchData = async (query: string = ''): Promise<void> => {
     try {
       const nearbyResponse = await axios.get(
-        `${extra.API_URL}/events/nearby?lat=-84.82550970170777&lng=33.9363830311417`
+        `${extra.API_URL}/events/nearby?lat=-84.82550970170777&lng=33.9363830311417${query ? `&query=${query}` : ''}`,
       );
       const outsideResponse = await axios.get(
-        `${extra.API_URL}/events/far?lat=-84.82550970170777&lng=33.9363830311417`
+        `${extra.API_URL}/events/far?lat=-84.82550970170777&lng=33.9363830311417${query ? `&query=${query}` : ''}`,
       );
 
       // Merge nearby and outside events
@@ -65,6 +70,7 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       console.error(err);
     } finally {
       setLoading(false);
+      setRefreshLoading(false);
     }
   };
 
@@ -73,12 +79,27 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, []);
 
   const refreshData = async () => {
-    setLoading(true);
+    setRefreshLoading(true);
+    setSearchText('');
     await fetchData();
   };
 
   return (
-    <EventContext.Provider value={{ nearbyEvents, outsideEvents, loading, error, refreshData }}>
+    <EventContext.Provider
+      value={{
+        nearbyEvents,
+        // setNearbyEvents,
+        outsideEvents,
+        // setOutsideEvents,
+        loading,
+        refreshLoading,
+        error,
+        refreshData,
+        fetchData,
+        searchText,
+        setSearchText,
+      }}
+    >
       {children}
     </EventContext.Provider>
   );
