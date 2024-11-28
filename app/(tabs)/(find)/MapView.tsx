@@ -101,8 +101,8 @@ export default function App() {
           <Marker
             key={index}
             coordinate={{
-              latitude: event.location.coordinates[0],
-              longitude: event.location.coordinates[1],
+              longitude: event.location.coordinates[0],
+              latitude: event.location.coordinates[1],
             }}
           >
             <Callout tooltip>
@@ -112,7 +112,7 @@ export default function App() {
                     source={{
                       uri: `${extra.API_URL}/images/${event.displayCover}`,
                     }}
-                    style={{ height: height * 0.2, overflow: 'hidden' }}
+                    style={{ height: height * 0.2, width: width * 0.9, overflow: 'hidden' }}
                     resizeMode="cover"
                   />
                   <View className={styles.eventInfoCont}>

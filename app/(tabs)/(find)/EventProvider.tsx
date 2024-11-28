@@ -56,10 +56,10 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const fetchData = async (query: string = ''): Promise<void> => {
     try {
       const nearbyResponse = await axios.get(
-        `${extra.API_URL}/events/nearby?lat=-84.82550970170777&lng=33.9363830311417${query ? `&query=${query}` : ''}`,
+        `${extra.API_URL}/events/nearby?lat=33.9363830311417&lng=-84.82550970170777${query ? `&query=${query}` : ''}`,
       );
       const outsideResponse = await axios.get(
-        `${extra.API_URL}/events/far?lat=-84.82550970170777&lng=33.9363830311417${query ? `&query=${query}` : ''}`,
+        `${extra.API_URL}/events/far?lat=33.9363830311417&lng=-84.82550970170777${query ? `&query=${query}` : ''}`,
       );
 
       // fetch logo
