@@ -1,4 +1,6 @@
 import React, { useContext } from 'react';
+import { useRouter } from 'expo-router';
+import { useScrollToTop } from '@react-navigation/native';
 import {
   Text,
   View,
@@ -10,36 +12,28 @@ import {
   RefreshControl,
   FlatList,
 } from 'react-native';
-import { useScrollToTop } from '@react-navigation/native';
+import { EventContext, Event } from '../../EventProvider';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { EventContext } from './EventProvider';
 import Constants from 'expo-constants';
 
 export default function EventList() {
+  const router = useRouter();
   const ref = React.useRef(null);
   useScrollToTop(ref);
-  const { nearbyEvents, outsideEvents, loading, refreshLoading, error, refreshData } =
-    useContext(EventContext)!;
+  const {
+    nearbyEvents,
+    outsideEvents,
+    loading,
+    refreshLoading,
+    error,
+    refreshData,
+    selectedEvent,
+    setSelectedEvent,
+  } = useContext(EventContext)!;
 
   // Handle loading state
   if (loading) {
     return <ActivityIndicator className={'m-auto'} size="large" color="white" />;
-  }
-
-  interface Event {
-    name: string; // Ensure this property exists
-    location: {
-      address: string;
-    };
-    date: string;
-    price: number;
-    currency: string;
-    startTime: string;
-    private: boolean;
-    displayCover: string;
-    hostDetails: {
-      username: string;
-    };
   }
 
   interface ExtraConfig {
@@ -54,12 +48,16 @@ export default function EventList() {
     throw new Error('API_URL is not defined in extra config.');
   }
 
+  const handleEventPress = (event: Event): void => {
+    setSelectedEvent(event);
+    router.push('/(tabs)/(find)/EventPage');
+  };
+
   const renderItem = ({ item }: { item: Event }) => (
-    <TouchableWithoutFeedback>
+    <TouchableWithoutFeedback onPress={() => handleEventPress(item)}>
       <View className={styles.eventCont}>
         <ImageBackground
           source={{ uri: `${extra.API_URL}/images/${item.displayCover}` }}
-          // className={styles.eventCover}
           resizeMode="cover"
           style={{ height: height * 0.2 }}
         />

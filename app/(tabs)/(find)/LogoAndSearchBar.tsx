@@ -2,18 +2,18 @@ import React, { useState, useContext } from 'react';
 import { Text, TextInput, View, ImageBackground, Dimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Constants from 'expo-constants';
-import { EventContext } from './EventProvider';
+import { EventContext } from '../../EventProvider';
 
 interface Props {
   activeTab: 'card' | 'map';
 }
 export default function LogoAndSearchBar({ activeTab }: Props) {
-  const { fetchData, searchText, setSearchText } = useContext(EventContext)!;
+  const { fetchListData, searchText, setSearchText } = useContext(EventContext)!;
 
   const handleSearch = (text: string) => {
     setSearchText(text);
     // Place the search logic here
-    fetchData(text);
+    fetchListData(text);
   };
 
   interface ExtraConfig {

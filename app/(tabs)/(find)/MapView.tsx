@@ -8,19 +8,19 @@ import {
   ImageBackground,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import MapView, { Marker, Callout, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { Marker, Callout, Circle, PROVIDER_GOOGLE } from 'react-native-maps';
 import * as Location from 'expo-location';
-import { EventContext } from './EventProvider';
+import { EventContext } from '../../EventProvider';
 import Constants from 'expo-constants';
 
 export default function App() {
   const [location, setLocation] = useState<any>(null);
   const [region, setRegion] = useState<any>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [mapLoading, setMapLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const { nearbyEvents, outsideEvents } = useContext(EventContext)!;
-  const events = [...nearbyEvents, ...outsideEvents];
+  const { mapNearbyEvents, mapOutsideEvents } = useContext(EventContext)!;
+  const events = [...mapNearbyEvents, ...mapOutsideEvents];
 
   interface ExtraConfig {
     API_URL: string;
@@ -70,7 +70,7 @@ export default function App() {
         console.error(error);
         setError('Failed to fetch location');
       } finally {
-        setLoading(false);
+        setMapLoading(false);
       }
     };
 
@@ -78,7 +78,7 @@ export default function App() {
   }, []);
 
   // If the location is still loading, show a loading spinner
-  if (loading) {
+  if (mapLoading) {
     return <ActivityIndicator size="large" color="white" className={'m-auto'} />;
   }
 

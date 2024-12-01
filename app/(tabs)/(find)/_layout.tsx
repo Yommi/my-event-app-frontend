@@ -1,14 +1,20 @@
-// import { Stack } from 'expo-router';
-import Index from './index';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-
-const Stack = createStackNavigator();
+import { EventProvider, EventContext } from '@/app/EventProvider';
+import { Stack } from 'expo-router';
 
 export default function ComponentName() {
   return (
-    <Stack.Navigator>
-      <Stack.Screen name="index" component={Index} options={{ headerShown: false }} />
-    </Stack.Navigator>
+    <EventProvider>
+      <Stack>
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="EventPage"
+          options={{
+            headerBackTitle: 'Back',
+            headerTitle: 'Event Page',
+            headerTransparent: true,
+          }}
+        />
+      </Stack>
+    </EventProvider>
   );
 }
