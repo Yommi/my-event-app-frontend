@@ -19,8 +19,7 @@ export default function App() {
   const [mapLoading, setMapLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const { mapNearbyEvents, mapOutsideEvents } = useContext(EventContext)!;
-  const events = [...mapNearbyEvents, ...mapOutsideEvents];
+  const { events } = useContext(EventContext)!;
 
   interface ExtraConfig {
     API_URL: string;

@@ -21,18 +21,18 @@ export default function EventList() {
   const ref = React.useRef(null);
   useScrollToTop(ref);
   const {
-    nearbyEvents,
-    outsideEvents,
+    events,
     loading,
     refreshLoading,
+    fetchMoreEvents,
     error,
     refreshData,
-    selectedEvent,
     setSelectedEvent,
+    isFetchingMore,
   } = useContext(EventContext)!;
 
   // Handle loading state
-  if (loading) {
+  if (loading && !refreshLoading) {
     return <ActivityIndicator className={'m-auto'} size="large" color="white" />;
   }
 
@@ -83,7 +83,7 @@ export default function EventList() {
           <View className={'h-12 bg-green-500 rounded-full mt-4 mr-4'}>
             <Text className={'text-white font-bold text-xl my-auto mx-6'}>
               {item.currency ? item.currency.toUpperCase() : ''}{' '}
-              {item.price ? item.price.toFixed(2) : 'Free'}
+              {item.price ? item.price.toFixed(2).toLocaleString() : 'Free'}
             </Text>
           </View>
           {item.private ? (
@@ -105,35 +105,25 @@ export default function EventList() {
     <SafeAreaView style={{ flex: 1 }}>
       <FlatList
         ref={ref}
-        data={[...nearbyEvents, ...outsideEvents]}
+        data={events}
         renderItem={({ item, index }) => {
-          if (index === 0 && nearbyEvents.length > 0) {
-            return (
-              <>
-                <View className={styles.eventGroupCont}>
-                  <Text className={styles.eventGroupTitle}>Nearby Events (Within 10km)</Text>
-                  <View className={styles.eventGroupLine}></View>
-                </View>
-                {renderItem({ item })}
-              </>
-            );
-          }
-          if (index === nearbyEvents.length && outsideEvents.length > 0) {
-            return (
-              <>
-                <View className={styles.eventGroupCont}>
-                  <Text className={styles.eventGroupTitle}>Events outside 10km radius</Text>
-                  <View className={styles.eventGroupLine}></View>
-                </View>
-                {renderItem({ item })}
-              </>
-            );
-          }
           return renderItem({ item });
         }}
         keyExtractor={(item, index) => index.toString()}
         refreshControl={<RefreshControl refreshing={refreshLoading} onRefresh={refreshData} />}
         contentContainerStyle={{ paddingBottom: 30 }}
+        onEndReached={({ distanceFromEnd }) => {
+          if (distanceFromEnd < 0) return;
+          fetchMoreEvents();
+        }}
+        // onEndReachedThreshold={1}
+        ListFooterComponent={
+          isFetchingMore ? (
+            <View className="flex-1 mt-4 justify-center items-center">
+              <ActivityIndicator size="large" color="white" />
+            </View>
+          ) : null
+        }
         ListEmptyComponent={
           error ? (
             <View className={`flex-1 justify-center items-center`} style={{ height: height * 0.7 }}>

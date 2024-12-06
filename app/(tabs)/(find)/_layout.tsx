@@ -1,4 +1,4 @@
-import { EventProvider, EventContext } from '@/app/EventProvider';
+import { EventProvider } from '@/app/EventProvider';
 import { Stack } from 'expo-router';
 
 export default function ComponentName() {
