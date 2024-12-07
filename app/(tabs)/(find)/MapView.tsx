@@ -8,18 +8,29 @@ import {
   ImageBackground,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { BlurView } from '@react-native-community/blur';
 import MapView, { Marker, Callout, Circle, PROVIDER_GOOGLE } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { EventContext } from '../../EventProvider';
 import Constants from 'expo-constants';
+import { opacity } from 'react-native-reanimated/lib/typescript/Colors';
 
 export default function App() {
-  const [location, setLocation] = useState<any>(null);
-  const [region, setRegion] = useState<any>(null);
-  const [mapLoading, setMapLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
 
-  const { events } = useContext(EventContext)!;
+  const {
+    fetchMapData,
+    mapEvents,
+    mapLocation,
+    setMapLocation,
+    region,
+    setRegion,
+    mapLoading,
+    setMapLoading,
+    cachedRegion,
+    setCachedRegion,
+  } = useContext(EventContext)!;
 
   interface ExtraConfig {
     API_URL: string;
@@ -46,7 +57,7 @@ export default function App() {
 
         // Get the user's current location
         const userLocation = await Location.getCurrentPositionAsync({});
-        setLocation(userLocation.coords);
+        setMapLocation(userLocation.coords);
         setRegion({
           latitude: userLocation.coords.latitude,
           longitude: userLocation.coords.longitude,
@@ -57,7 +68,7 @@ export default function App() {
         Location.watchPositionAsync(
           { accuracy: Location.Accuracy.High, timeInterval: 1000, distanceInterval: 10 },
           (newLocation) => {
-            setLocation(newLocation.coords);
+            setMapLocation(newLocation.coords);
             setRegion((prevRegion: typeof region | null) => ({
               ...prevRegion,
               latitude: newLocation.coords.latitude,
@@ -76,13 +87,51 @@ export default function App() {
     getLocation();
   }, []);
 
+  useEffect(() => {
+    if (!isRegionInsideCache(region, cachedRegion)) {
+      fetchMapData();
+    }
+  }, [region]);
+
+  const isRegionInsideCache = (newRegion: any, cachedRegion: any) => {
+    if (!cachedRegion) return false;
+
+    return (
+      newRegion.latitude - newRegion.latitudeDelta / 2 >=
+        cachedRegion.latitude - cachedRegion.latitudeDelta / 2 &&
+      newRegion.latitude + newRegion.latitudeDelta / 2 <=
+        cachedRegion.latitude + cachedRegion.latitudeDelta / 2 &&
+      newRegion.longitude - newRegion.longitudeDelta / 2 >=
+        cachedRegion.longitude - cachedRegion.longitudeDelta / 2 &&
+      newRegion.longitude + newRegion.longitudeDelta / 2 <=
+        cachedRegion.longitude + cachedRegion.longitudeDelta / 2
+    );
+  };
+
+  const handleRegionChangeComplete = (newRegion: any) => {
+    // Clear any existing timer
+    // if (timer) {
+    //   clearTimeout(timer);
+    // }
+    if (!isRegionInsideCache(newRegion, cachedRegion)) {
+      setRegion(newRegion);
+    }
+    // Set a new timer to delay the fetching
+    // const newTimer = setTimeout(() => {
+    //   // Only fetch if the region is not cached
+
+    // }, 1000); // 1 second delay (you can adjust this value)
+
+    // setTimer(newTimer);
+  };
+
   // If the location is still loading, show a loading spinner
   if (mapLoading) {
     return <ActivityIndicator size="large" color="white" className={'m-auto'} />;
   }
 
   // Only render the MapView once the location is available
-  if (!location) {
+  if (!mapLocation) {
     return <ActivityIndicator size="large" color="white" className={'m-auto'} />;
   }
 
@@ -94,10 +143,11 @@ export default function App() {
         showsCompass={true}
         showsUserLocation={true}
         region={region}
-        onRegionChangeComplete={(newRegion) => setRegion(newRegion)}
+        onRegionChangeComplete={handleRegionChangeComplete}
       >
-        {events.map((event, index) => (
+        {mapEvents.map((event, index) => (
           <Marker
+            style={{ opacity: mapLoading ? 0.3 : 1 }}
             key={index}
             coordinate={{
               longitude: event.location.coordinates[0],
@@ -130,8 +180,7 @@ export default function App() {
                       <Text className={styles.eventInfoType}>Time:</Text> {event.startTime}
                     </Text>
                     <Text className={styles.eventBy}>
-                      <Text className={styles.eventInfoType}>By:</Text> @
-                      {event.hostDetails.username}
+                      <Text className={styles.eventInfoType}>By:</Text> @{event.host.username}
                     </Text>
                   </View>
                   <View className={'pl-2 flex-row justify-between'}>
@@ -174,4 +223,6 @@ const styles = {
   eventDate: 'text-white mt-2',
   eventTime: 'text-white mt-2',
   eventBy: 'text-gray-500 mt-2',
+  overlay:
+    'absolute top-0 left-0 right-0 bottom-0 bg-blue bg-opacity-50 flex justify-center items-center z-10',
 };

@@ -17,6 +17,9 @@ export interface Event {
   startTime: string;
   private: boolean;
   displayCover: string;
+  host: {
+    username: string;
+  };
   hostDetails: {
     username: string;
   };
@@ -26,8 +29,15 @@ export interface EventContextType {
   events: Event[];
   setEvents: React.Dispatch<React.SetStateAction<Event[]>>;
   mapEvents: Event[];
+  mapLocation: any;
+  setMapLocation: React.Dispatch<React.SetStateAction<any>>;
+  region: any;
+  setRegion: React.Dispatch<React.SetStateAction<any>>;
+  cachedRegion: any;
+  setCachedRegion: React.Dispatch<React.SetStateAction<any>>;
   loading: boolean;
   mapLoading: boolean;
+  setMapLoading: React.Dispatch<React.SetStateAction<boolean>>;
   isFetchingMore: boolean;
   setIsFetchingMore: React.Dispatch<React.SetStateAction<boolean>>;
   refreshLoading: boolean;
@@ -60,22 +70,25 @@ if (!extra) {
 
 export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [loading, setLoading] = useState(true);
-  const [mapLoading, setMapLoading] = useState(true);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [noMoreEvents, setNoMoreEvents] = useState(false);
   const [refreshLoading, setRefreshLoading] = useState(false);
   const [error, setError] = useState(false);
-  const [mapError, setMapError] = useState(false);
   const [events, setEvents] = useState<Event[]>([]);
+  const [listLocation, setListLocation] = useState<any>(null);
   const [mapEvents, setMapEvents] = useState<Event[]>([]);
-  const [yourLocation, setYourLocation] = useState<any>(null);
+  const [mapLocation, setMapLocation] = useState<any>(null);
+  const [region, setRegion] = useState<any>(null);
+  const [mapLoading, setMapLoading] = useState<boolean>(true);
+  const [mapError, setMapError] = useState(false);
+  const [cachedRegion, setCachedRegion] = useState<any>(null);
   const [searchText, setSearchText] = useState<string>('');
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [page, setPage] = useState<number>(1);
 
   useEffect(() => {
     fetchListData();
-    fetchMapData();
+    // fetchMapData();
   }, []);
 
   useEffect(() => {}, [page]);
@@ -93,7 +106,7 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       // Get the user's current location
       const userLocation = await Location.getCurrentPositionAsync({});
       const coords = userLocation.coords;
-      setYourLocation(coords);
+      setListLocation(coords);
       return coords;
     } catch (error) {
       console.error(error);
@@ -105,7 +118,7 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     try {
       setLoading(true);
 
-      const location = yourLocation || (await getLocation()); // Use state or fetch fresh
+      const location = listLocation || (await getLocation()); // Use state or fetch fresh
       const { latitude, longitude } = location;
 
       const events = await axios.get(
@@ -124,22 +137,24 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const fetchMapData = async () => {
-    setMapLoading(true);
-
+    const { latitude, longitude, latitudeDelta, longitudeDelta } = region;
+    const queryParams = `lat=${latitude}&lng=${longitude}&latDelta=${latitudeDelta}&lngDelta=${longitudeDelta}`;
     try {
-      const location = yourLocation || (await getLocation()); // Use state or fetch fresh
-      const { latitude, longitude } = location;
-      const events = await axios.get(
-        `${extra.API_URL}/events/eventsByLocation?lat=${latitude}&lng=${longitude}`,
-      );
-
-      // Merge nearby and outside events
-      setMapEvents(events.data.data);
+      // setMapLoading(true);
+      const response = await axios.get(`${extra.API_URL}/events/eventsByRegion?${queryParams}`);
+      const events = response.data.data;
+      mapEvents.push(...events);
+      setCachedRegion((prev: any) => ({
+        latitude: prev ? (prev.latitude + latitude) / 2 : latitude,
+        longitude: prev ? (prev.longitude + longitude) / 2 : longitude,
+        latitudeDelta: prev ? Math.max(prev.latitudeDelta, latitudeDelta) : latitudeDelta,
+        longitudeDelta: prev ? Math.max(prev.longitudeDelta, longitudeDelta) : longitudeDelta,
+      }));
     } catch (err) {
       setMapError(true);
-      console.error(err);
+      console.error('Error fetching events:', err);
     } finally {
-      setMapLoading(true);
+      setMapLoading(false);
     }
   };
 
@@ -148,7 +163,7 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setIsFetchingMore(true);
     try {
       pageRef.current += 1;
-      const location = yourLocation || (await getLocation());
+      const location = listLocation || (await getLocation());
       const { latitude, longitude } = location;
 
       const response = await axios.get(
@@ -182,8 +197,15 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         events,
         setEvents,
         mapEvents,
+        mapLocation,
+        setMapLocation,
+        region,
+        setRegion,
+        cachedRegion,
+        setCachedRegion,
         loading,
         mapLoading,
+        setMapLoading,
         isFetchingMore,
         setIsFetchingMore,
         refreshLoading,
