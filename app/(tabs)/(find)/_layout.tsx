@@ -10,7 +10,7 @@ export default function ComponentName() {
           name="EventPage"
           options={{
             headerBackTitle: 'Back',
-            headerTitle: 'Event Page',
+            headerTitle: '',
             headerTransparent: true,
           }}
         />

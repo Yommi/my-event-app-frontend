@@ -5,7 +5,6 @@ import LogoAndSearchBar from './LogoAndSearchBar';
 import EventList from './EventsList';
 import MapView from './MapView';
 import AnimatedTabBar from './AnimatedTabBar';
-import { EventProvider } from '../../EventProvider';
 
 export default function Index() {
   const [activeTab, setActiveTab] = useState<'card' | 'map'>('card');

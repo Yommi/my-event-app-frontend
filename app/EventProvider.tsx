@@ -4,6 +4,7 @@ import Constants from 'expo-constants';
 import * as Location from 'expo-location';
 
 export interface Event {
+  _id: any;
   name: string;
   description: string;
   location: {
@@ -11,12 +12,14 @@ export interface Event {
     coordinates: [number, number];
   };
   date: string;
+  tags: [string];
   distance: number;
   price: number;
   currency: string;
   startTime: string;
   private: boolean;
   displayCover: string;
+  displayVideo: string;
   host: {
     username: string;
   };
@@ -34,15 +37,19 @@ export interface EventContextType {
   loading: boolean;
   mapLoading: boolean;
   setMapLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  selectedLoading: boolean;
+  eventPageLoading: boolean;
   isFetchingMore: boolean;
   fetchingMoreRef: any;
   noMoreEventsRef: any;
   refreshLoading: boolean;
   error: boolean;
-  refreshData: () => Promise<void>;
   fetchListData: (query?: string) => Promise<void>;
   fetchMapData: () => Promise<void>;
   fetchMoreEvents: (query?: string) => Promise<void>;
+  refreshData: () => Promise<void>;
+  getSelectedEvent: () => Promise<void>;
+  refreshEventPage: () => Promise<void>;
   searchText: string;
   setSearchText: React.Dispatch<React.SetStateAction<string>>;
   selectedEvent: Event | null;
@@ -72,6 +79,8 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [mapEvents, setMapEvents] = useState<Event[]>([]);
   const [isFetchingMore, setIsFetchingMore] = useState<boolean>(true);
   const [mapLoading, setMapLoading] = useState<boolean>(true);
+  const [selectedLoading, setSelectedLoading] = useState<boolean>(true);
+  const [eventPageLoading, setEventPageLoading] = useState<boolean>(true);
   const [mapError, setMapError] = useState(false);
   const [searchText, setSearchText] = useState<string>('');
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
@@ -178,6 +187,32 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     await fetchMapData();
   };
 
+  const getSelectedEvent = async () => {
+    try {
+      setSelectedLoading(true);
+      const response = await axios.get(`${extra.API_URL}/events/${selectedEvent?._id}`);
+      const event = response.data.data;
+      setSelectedEvent(event);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setSelectedLoading(false);
+    }
+  };
+
+  const refreshEventPage = async () => {
+    try {
+      setEventPageLoading(true);
+      const response = await axios.get(`${extra.API_URL}/events/${selectedEvent?._id}`);
+      const event = response.data.data;
+      setSelectedEvent(event);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setEventPageLoading(false);
+    }
+  };
+
   return (
     <EventContext.Provider
       value={{
@@ -189,15 +224,19 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         loading,
         mapLoading,
         setMapLoading,
+        selectedLoading,
+        eventPageLoading,
         isFetchingMore,
         fetchingMoreRef,
         noMoreEventsRef,
         refreshLoading,
         error,
-        refreshData,
         fetchListData,
         fetchMapData,
         fetchMoreEvents,
+        refreshData,
+        getSelectedEvent,
+        refreshEventPage,
         searchText,
         setSearchText,
         selectedEvent,
