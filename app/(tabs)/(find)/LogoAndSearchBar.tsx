@@ -8,9 +8,10 @@ interface Props {
   activeTab: 'card' | 'map';
 }
 export default function LogoAndSearchBar({ activeTab }: Props) {
-  const { fetchListData, searchText, setSearchText } = useContext(EventContext)!;
+  const { fetchListData, searchText, setSearchText, pageRef } = useContext(EventContext)!;
 
   const handleSearch = (text: string) => {
+    pageRef.current = 1;
     setSearchText(text);
     // Place the search logic here
     fetchListData(text);
@@ -58,7 +59,7 @@ const { width, height } = Dimensions.get('window');
 
 const styles = {
   logoSearchCont: 'w-full flex-row justify-between pb-4',
-  logo: 'flex-[1.5]',
+  logo: 'ml-2 flex-[1.5]',
   emptySpace: 'flex-[1]',
   searchContainer: 'flex-[7.5] flex-row items-center h-12 rounded-full px-3 bg-[#191827]',
   searchIcon: 'mr-4',

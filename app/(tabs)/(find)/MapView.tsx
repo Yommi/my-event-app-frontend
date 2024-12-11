@@ -1,4 +1,12 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useState,
+  useContext,
+  useRef,
+  useCallback,
+} from 'react';
+import { useRouter } from 'expo-router';
 import {
   View,
   Text,
@@ -6,6 +14,7 @@ import {
   TouchableWithoutFeedback,
   Dimensions,
   ImageBackground,
+  InteractionManager,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { BlurView } from '@react-native-community/blur';
@@ -13,24 +22,16 @@ import MapView, { Marker, Callout, Circle, PROVIDER_GOOGLE } from 'react-native-
 import * as Location from 'expo-location';
 import { EventContext } from '../../EventProvider';
 import Constants from 'expo-constants';
-import { opacity } from 'react-native-reanimated/lib/typescript/Colors';
+// import { opacity } from 'react-native-reanimated/lib/typescript/Colors';
 
 export default function App() {
+  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
+  // const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const {
-    fetchMapData,
-    mapEvents,
-    mapLocation,
-    setMapLocation,
-    region,
-    setRegion,
-    mapLoading,
-    setMapLoading,
-    cachedRegion,
-    setCachedRegion,
-  } = useContext(EventContext)!;
+  const { fetchMapData, mapEvents, setSelectedEvent, regionRef, mapLoading, setMapLoading } =
+    useContext(EventContext)!;
 
   interface ExtraConfig {
     API_URL: string;
@@ -57,25 +58,14 @@ export default function App() {
 
         // Get the user's current location
         const userLocation = await Location.getCurrentPositionAsync({});
-        setMapLocation(userLocation.coords);
-        setRegion({
+        const startRegion = {
           latitude: userLocation.coords.latitude,
           longitude: userLocation.coords.longitude,
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
-        });
-
-        Location.watchPositionAsync(
-          { accuracy: Location.Accuracy.High, timeInterval: 1000, distanceInterval: 10 },
-          (newLocation) => {
-            setMapLocation(newLocation.coords);
-            setRegion((prevRegion: typeof region | null) => ({
-              ...prevRegion,
-              latitude: newLocation.coords.latitude,
-              longitude: newLocation.coords.longitude,
-            }));
-          },
-        );
+        };
+        regionRef.current = startRegion;
+        fetchMapData();
       } catch (error) {
         console.error(error);
         setError('Failed to fetch location');
@@ -87,52 +77,18 @@ export default function App() {
     getLocation();
   }, []);
 
-  useEffect(() => {
-    if (!isRegionInsideCache(region, cachedRegion)) {
-      fetchMapData();
-    }
-  }, [region]);
-
-  const isRegionInsideCache = (newRegion: any, cachedRegion: any) => {
-    if (!cachedRegion) return false;
-
-    return (
-      newRegion.latitude - newRegion.latitudeDelta / 2 >=
-        cachedRegion.latitude - cachedRegion.latitudeDelta / 2 &&
-      newRegion.latitude + newRegion.latitudeDelta / 2 <=
-        cachedRegion.latitude + cachedRegion.latitudeDelta / 2 &&
-      newRegion.longitude - newRegion.longitudeDelta / 2 >=
-        cachedRegion.longitude - cachedRegion.longitudeDelta / 2 &&
-      newRegion.longitude + newRegion.longitudeDelta / 2 <=
-        cachedRegion.longitude + cachedRegion.longitudeDelta / 2
-    );
-  };
-
   const handleRegionChangeComplete = (newRegion: any) => {
-    // Clear any existing timer
-    // if (timer) {
-    //   clearTimeout(timer);
-    // }
-    if (!isRegionInsideCache(newRegion, cachedRegion)) {
-      setRegion(newRegion);
-    }
-    // Set a new timer to delay the fetching
-    // const newTimer = setTimeout(() => {
-    //   // Only fetch if the region is not cached
-
-    // }, 1000); // 1 second delay (you can adjust this value)
-
-    // setTimer(newTimer);
+    regionRef.current = newRegion;
   };
 
-  // If the location is still loading, show a loading spinner
-  if (mapLoading) {
-    return <ActivityIndicator size="large" color="white" className={'m-auto'} />;
-  }
+  const handleCalloutPress = (event: any): void => {
+    console.log('event:', event.name);
+    setSelectedEvent(event);
+    router.push('/(tabs)/(find)/EventPage');
+  };
 
-  // Only render the MapView once the location is available
-  if (!mapLocation) {
-    return <ActivityIndicator size="large" color="white" className={'m-auto'} />;
+  if (mapLoading) {
+    return <ActivityIndicator size="large" color="white" className="m-auto" />;
   }
 
   return (
@@ -142,19 +98,23 @@ export default function App() {
         showsMyLocationButton={true}
         showsCompass={true}
         showsUserLocation={true}
-        region={region}
+        region={regionRef.current}
         onRegionChangeComplete={handleRegionChangeComplete}
       >
         {mapEvents.map((event, index) => (
           <Marker
-            style={{ opacity: mapLoading ? 0.3 : 1 }}
             key={index}
             coordinate={{
               longitude: event.location.coordinates[0],
               latitude: event.location.coordinates[1],
             }}
           >
-            <Callout tooltip>
+            <Callout
+              tooltip
+              onPress={() => {
+                handleCalloutPress(event);
+              }}
+            >
               <TouchableWithoutFeedback>
                 <View className={styles.eventCont}>
                   <ImageBackground

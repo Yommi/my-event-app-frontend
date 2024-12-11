@@ -29,17 +29,14 @@ export interface EventContextType {
   events: Event[];
   setEvents: React.Dispatch<React.SetStateAction<Event[]>>;
   mapEvents: Event[];
-  mapLocation: any;
-  setMapLocation: React.Dispatch<React.SetStateAction<any>>;
-  region: any;
-  setRegion: React.Dispatch<React.SetStateAction<any>>;
-  cachedRegion: any;
-  setCachedRegion: React.Dispatch<React.SetStateAction<any>>;
+  pageRef: any;
+  regionRef: any;
   loading: boolean;
   mapLoading: boolean;
   setMapLoading: React.Dispatch<React.SetStateAction<boolean>>;
   isFetchingMore: boolean;
-  setIsFetchingMore: React.Dispatch<React.SetStateAction<boolean>>;
+  fetchingMoreRef: any;
+  noMoreEventsRef: any;
   refreshLoading: boolean;
   error: boolean;
   refreshData: () => Promise<void>;
@@ -50,8 +47,6 @@ export interface EventContextType {
   setSearchText: React.Dispatch<React.SetStateAction<string>>;
   selectedEvent: Event | null;
   setSelectedEvent: React.Dispatch<React.SetStateAction<Event | null>>;
-  page: number;
-  setPage: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export const EventContext = createContext<EventContextType | undefined>(undefined);
@@ -70,30 +65,25 @@ if (!extra) {
 
 export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [loading, setLoading] = useState(true);
-  const [isFetchingMore, setIsFetchingMore] = useState(false);
-  const [noMoreEvents, setNoMoreEvents] = useState(false);
   const [refreshLoading, setRefreshLoading] = useState(false);
   const [error, setError] = useState(false);
   const [events, setEvents] = useState<Event[]>([]);
   const [listLocation, setListLocation] = useState<any>(null);
   const [mapEvents, setMapEvents] = useState<Event[]>([]);
-  const [mapLocation, setMapLocation] = useState<any>(null);
-  const [region, setRegion] = useState<any>(null);
+  const [isFetchingMore, setIsFetchingMore] = useState<boolean>(true);
   const [mapLoading, setMapLoading] = useState<boolean>(true);
   const [mapError, setMapError] = useState(false);
-  const [cachedRegion, setCachedRegion] = useState<any>(null);
   const [searchText, setSearchText] = useState<string>('');
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-  const [page, setPage] = useState<number>(1);
+
+  const regionRef = useRef(null);
+  const pageRef = useRef(1);
+  const fetchingMoreRef = useRef<boolean>(false);
+  const noMoreEventsRef = useRef<boolean>(false);
 
   useEffect(() => {
     fetchListData();
-    // fetchMapData();
   }, []);
-
-  useEffect(() => {}, [page]);
-
-  const pageRef = useRef(1);
 
   const getLocation = async () => {
     try {
@@ -137,19 +127,11 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const fetchMapData = async () => {
-    const { latitude, longitude, latitudeDelta, longitudeDelta } = region;
-    const queryParams = `lat=${latitude}&lng=${longitude}&latDelta=${latitudeDelta}&lngDelta=${longitudeDelta}`;
     try {
-      // setMapLoading(true);
-      const response = await axios.get(`${extra.API_URL}/events/eventsByRegion?${queryParams}`);
+      setMapLoading(true);
+      const response = await axios.get(`${extra.API_URL}/events/`);
       const events = response.data.data;
-      mapEvents.push(...events);
-      setCachedRegion((prev: any) => ({
-        latitude: prev ? (prev.latitude + latitude) / 2 : latitude,
-        longitude: prev ? (prev.longitude + longitude) / 2 : longitude,
-        latitudeDelta: prev ? Math.max(prev.latitudeDelta, latitudeDelta) : latitudeDelta,
-        longitudeDelta: prev ? Math.max(prev.longitudeDelta, longitudeDelta) : longitudeDelta,
-      }));
+      setMapEvents(events);
     } catch (err) {
       setMapError(true);
       console.error('Error fetching events:', err);
@@ -159,9 +141,10 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const fetchMoreEvents = async (query: string = searchText) => {
-    if (isFetchingMore || noMoreEvents) return;
-    setIsFetchingMore(true);
+    if (fetchingMoreRef.current || noMoreEventsRef.current) return;
     try {
+      setIsFetchingMore(true);
+      fetchingMoreRef.current = true;
       pageRef.current += 1;
       const location = listLocation || (await getLocation());
       const { latitude, longitude } = location;
@@ -171,7 +154,9 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       );
       const newEvents = response.data.data;
       if (newEvents.length === 0) {
-        setNoMoreEvents(true); // No more events available
+        // setNoMoreEvents(true);
+        noMoreEventsRef.current = true; // No more events available
+        pageRef.current -= 1;
       } else {
         setEvents((prevEvents) => [...prevEvents, ...newEvents]);
       }
@@ -179,6 +164,7 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       console.error('Failed to fetch more events', error);
     } finally {
       setIsFetchingMore(false);
+      fetchingMoreRef.current = false;
     }
   };
 
@@ -186,7 +172,8 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setRefreshLoading(true);
     setSearchText('');
     pageRef.current = 1;
-    setNoMoreEvents(false);
+    // setNoMoreEvents(false);
+    noMoreEventsRef.current = false;
     await fetchListData();
     await fetchMapData();
   };
@@ -197,17 +184,14 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         events,
         setEvents,
         mapEvents,
-        mapLocation,
-        setMapLocation,
-        region,
-        setRegion,
-        cachedRegion,
-        setCachedRegion,
+        pageRef,
+        regionRef,
         loading,
         mapLoading,
         setMapLoading,
         isFetchingMore,
-        setIsFetchingMore,
+        fetchingMoreRef,
+        noMoreEventsRef,
         refreshLoading,
         error,
         refreshData,
@@ -218,8 +202,6 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setSearchText,
         selectedEvent,
         setSelectedEvent,
-        page,
-        setPage,
       }}
     >
       {children}

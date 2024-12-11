@@ -116,11 +116,11 @@ export default function EventList() {
           if (distanceFromEnd < 0) return;
           fetchMoreEvents();
         }}
-        // onEndReachedThreshold={1}
+        onEndReachedThreshold={0.7}
         ListFooterComponent={
           isFetchingMore ? (
             <View className="flex-1 mt-4 justify-center items-center">
-              <ActivityIndicator size="large" color="white" />
+              <ActivityIndicator size="small" color="white" />
             </View>
           ) : null
         }
