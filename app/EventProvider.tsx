@@ -135,10 +135,15 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
-  const fetchMapData = async () => {
+  const fetchMapData = async (query: string = '') => {
     try {
       setMapLoading(true);
-      const response = await axios.get(`${extra.API_URL}/events/`);
+      const location = listLocation || (await getLocation()); // Use state or fetch fresh
+      const { latitude, longitude } = location;
+
+      const response = await axios.get(
+        `${extra.API_URL}/events/eventsByLocation?lat=${latitude}&lng=${longitude}${query ? `&query=${query}` : ''}&noLimit=true`,
+      );
       const events = response.data.data;
       setMapEvents(events);
     } catch (err) {
@@ -191,7 +196,8 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     try {
       setSelectedLoading(true);
       const response = await axios.get(`${extra.API_URL}/events/${selectedEvent?._id}`);
-      const event = response.data.data;
+      let event = response.data.data;
+      event.distance = selectedEvent?.distance;
       setSelectedEvent(event);
     } catch (err) {
       console.log(err);
@@ -205,6 +211,7 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setEventPageLoading(true);
       const response = await axios.get(`${extra.API_URL}/events/${selectedEvent?._id}`);
       const event = response.data.data;
+      event.distance = selectedEvent?.distance;
       setSelectedEvent(event);
     } catch (err) {
       console.log(err);

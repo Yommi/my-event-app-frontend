@@ -82,7 +82,6 @@ export default function App() {
   };
 
   const handleCalloutPress = (event: any): void => {
-    console.log('event:', event.name);
     setSelectedEvent(event);
     router.push('/(tabs)/(find)/EventPage');
   };
@@ -139,8 +138,13 @@ export default function App() {
                     <Text className={styles.eventTime}>
                       <Text className={styles.eventInfoType}>Time:</Text> {event.startTime}
                     </Text>
+                    <Text className={styles.eventDistance}>
+                      <Text className={styles.eventInfoType}>Distance:</Text>{' '}
+                      {Math.round(event.distance / 1000)} Km
+                    </Text>
                     <Text className={styles.eventBy}>
-                      <Text className={styles.eventInfoType}>By:</Text> @{event.host.username}
+                      <Text className={styles.eventInfoType}>By:</Text> @
+                      {event.hostDetails.username}
                     </Text>
                   </View>
                   <View className={'pl-2 flex-row justify-between'}>
@@ -177,12 +181,11 @@ const { width, height } = Dimensions.get('window');
 const styles = {
   eventCont: 'mt-8 mx-auto bg-[#191827] rounded-2xl w-full pb-6',
   eventInfoCont: 'mt-4 p-2',
-  eventInfoType: 'font-bold text-xl text-yellow-200',
+  eventInfoType: 'font-bold text-xl text-yellow-300',
   eventName: 'text-white font-bold text-xl',
   eventAddress: 'text-white mt-2',
   eventDate: 'text-white mt-2',
   eventTime: 'text-white mt-2',
+  eventDistance: 'text-white mt-2',
   eventBy: 'text-gray-500 mt-2',
-  overlay:
-    'absolute top-0 left-0 right-0 bottom-0 bg-blue bg-opacity-50 flex justify-center items-center z-10',
 };

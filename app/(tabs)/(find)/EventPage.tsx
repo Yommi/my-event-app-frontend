@@ -1,4 +1,6 @@
 import { useState, useContext, useEffect } from 'react';
+import { useEvent } from 'expo';
+import { useVideoPlayer, VideoView } from 'expo-video';
 import {
   Text,
   View,
@@ -8,10 +10,14 @@ import {
   ImageBackground,
   ActivityIndicator,
   RefreshControl,
+  TouchableOpacity,
+  StyleSheet,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { EventContext } from '../../EventProvider';
 import Constants from 'expo-constants';
+import Feather from '@expo/vector-icons/Feather';
+import Entypo from '@expo/vector-icons/Entypo';
 
 export default function EventPage() {
   const { selectedEvent, getSelectedEvent, selectedLoading, refreshEventPage, eventPageLoading } =
@@ -21,6 +27,23 @@ export default function EventPage() {
   }
 
   const navigation = useNavigation();
+
+  // Extract the extra config using type assertion
+  const extra = Constants.expoConfig?.extra as ExtraConfig;
+
+  // Check if the extra object is available
+  if (!extra) {
+    throw new Error('API_URL is not defined in extra config.');
+  }
+
+  const image = `${extra.API_URL}/images/${selectedEvent?.displayCover}`;
+  const video = selectedEvent?.displayVideo
+    ? `${extra.API_URL}/videos/${selectedEvent?.displayVideo}`
+    : null;
+  const player = useVideoPlayer(video, (player) => {
+    player.loop = true;
+    player.play();
+  });
 
   useEffect(() => {
     // Set the headerTitle dynamically when the screen is focused
@@ -32,13 +55,6 @@ export default function EventPage() {
   useEffect(() => {
     getSelectedEvent();
   }, []);
-  // Extract the extra config using type assertion
-  const extra = Constants.expoConfig?.extra as ExtraConfig;
-
-  // Check if the extra object is available
-  if (!extra) {
-    throw new Error('API_URL is not defined in extra config.');
-  }
 
   if (selectedLoading) {
     return (
@@ -54,33 +70,67 @@ export default function EventPage() {
         refreshControl={
           <RefreshControl refreshing={eventPageLoading} onRefresh={refreshEventPage} />
         }
+        showsVerticalScrollIndicator={false}
         className="mt-2 h-full"
       >
         {selectedEvent ? (
           <View className="mb-8">
-            <View style={{ height: height * 0.3 }}>
-              <ImageBackground
-                source={{ uri: `${extra.API_URL}/images/${selectedEvent?.displayCover}` }}
-                resizeMode="cover"
-                style={{ flex: 1 }}
-              />
+            <View id="media-container" style={{ height: height * 0.28 }}>
+              {!selectedEvent.displayVideo ? (
+                <ImageBackground source={{ uri: image }} resizeMode="cover" style={{ flex: 1 }} />
+              ) : (
+                <VideoView
+                  style={styles2.video}
+                  player={player}
+                  allowsFullscreen
+                  contentFit="cover"
+                />
+              )}
             </View>
             <Text className={styles.header}>Description</Text>
             <Text className="mt-4 text-center text-white leading-normal px-1">
               {selectedEvent.description}
             </Text>
             {selectedEvent.tags.length > 0 ? (
-              <>
-                <Text className={styles.header}>Tags</Text>
-                <View style={{ maxWidth: width * 0.9 }} className={styles.tagsContainer}>
-                  {selectedEvent.tags.map((tag, index) => (
-                    <View key={index} className={styles.tagContainer}>
-                      <Text className="text-white">{tag}</Text>
-                    </View>
-                  ))}
-                </View>
-              </>
+              <View style={{ maxWidth: width * 0.9 }} className={styles.tagsContainer}>
+                {selectedEvent.tags.map((tag, index) => (
+                  <View key={index} className={styles.tagContainer}>
+                    <Text className="text-white font-medium">{tag}</Text>
+                  </View>
+                ))}
+              </View>
             ) : null}
+            <View className={styles.otherEventInfoCont}>
+              <Text className={styles.infoValue}>
+                <Text className={styles.otherEventInfoType}>Distance:</Text>{' '}
+                {Math.round(selectedEvent.distance / 1000)} Km
+              </Text>
+              <Text className={styles.infoValue}>
+                <Text className={styles.otherEventInfoType}>Price:</Text>{' '}
+                {selectedEvent.currency ? selectedEvent.currency.toUpperCase() : ''}{' '}
+                {selectedEvent.price ? selectedEvent.price.toFixed(2).toLocaleString() : 'Free'}
+              </Text>
+            </View>
+            {true ? null : (
+              <Text className="text-gray-500 underline mb-4 text-right mr-4">Unregister?</Text>
+            )}
+            <TouchableOpacity className={styles.buttons}>
+              <Text className={styles.buttonText}>{true ? 'Register' : 'Chat Room'}</Text>
+              {true ? (
+                <Feather
+                  name="check-circle"
+                  size={24}
+                  color="white"
+                  className={styles.buttonIcon}
+                />
+              ) : (
+                <Entypo name="typing" size={24} color="white" className={styles.buttonIcon} />
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity className={styles.buttons}>
+              <Text className={styles.buttonText}>Get Directions</Text>
+              <Entypo name="direction" size={24} color="white" className={styles.buttonIcon} />
+            </TouchableOpacity>
           </View>
         ) : (
           <View className="flex-1 justify-center items-center">
@@ -94,7 +144,30 @@ export default function EventPage() {
 
 const { width, height } = Dimensions.get('window');
 const styles = {
-  header: 'mx-auto mt-4 text-white text-2xl font-bold underline',
-  tagsContainer: 'mt-4 mx-auto flex-row justify-center flex-wrap gap-x-4 gap-y-4',
-  tagContainer: 'p-3 bg-purple-500 rounded-2xl',
+  header: 'mx-auto mt-4 text-yellow-300 text-2xl font-bold underline',
+  tagsContainer: 'mt-6 mx-auto flex-row justify-center flex-wrap gap-x-4 gap-y-4',
+  tagContainer: 'p-3 bg-green-600 rounded-2xl',
+  otherEventInfoCont: 'p-4 mt-2',
+  otherEventInfoType: 'font-bold text-xl text-yellow-300',
+  infoValue: 'text-white text-lg mt-2',
+  buttons: ' flex-row justify-center align-center p-3 mx-4 my-3 bg-blue-800 rounded-3xl',
+  buttonText: 'text-white text-2xl font-bold',
+  buttonIcon: 'my-auto ml-2',
 };
+
+const styles2 = StyleSheet.create({
+  contentContainer: {
+    flex: 1,
+    padding: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 50,
+  },
+  video: {
+    width: '100%',
+    height: '100%',
+  },
+  controlsContainer: {
+    padding: 10,
+  },
+});
