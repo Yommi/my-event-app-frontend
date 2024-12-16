@@ -14,15 +14,13 @@ import {
   TouchableWithoutFeedback,
   Dimensions,
   ImageBackground,
-  InteractionManager,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { BlurView } from '@react-native-community/blur';
 import MapView, { Marker, Callout, Circle, PROVIDER_GOOGLE } from 'react-native-maps';
 import * as Location from 'expo-location';
-import { EventContext } from '../../EventProvider';
+import { EventContext, extra } from '../../EventProvider';
 import Constants from 'expo-constants';
-// import { opacity } from 'react-native-reanimated/lib/typescript/Colors';
 
 export default function App() {
   const router = useRouter();
@@ -32,13 +30,6 @@ export default function App() {
 
   const { fetchMapData, mapEvents, setSelectedEvent, regionRef, mapLoading, setMapLoading } =
     useContext(EventContext)!;
-
-  interface ExtraConfig {
-    API_URL: string;
-  }
-
-  // Extract the extra config using type assertion
-  const extra = Constants.expoConfig?.extra as ExtraConfig;
 
   // Check if the extra object is available
   if (!extra) {
@@ -125,25 +116,27 @@ export default function App() {
                   />
                   <View className={styles.eventInfoCont}>
                     <Text className={styles.eventName}>
-                      <Text className={styles.eventInfoType}>Name:</Text> {event.name}
+                      <Text className={styles.eventInfoType}>Name: </Text>
+                      {event.name}
                     </Text>
                     <Text className={styles.eventAddress}>
-                      <Text className={styles.eventInfoType}>Address:</Text>{' '}
+                      <Text className={styles.eventInfoType}>Address: </Text>
                       {event.location.address}
                     </Text>
                     <Text className={styles.eventDate}>
-                      <Text className={styles.eventInfoType}>Date:</Text>{' '}
+                      <Text className={styles.eventInfoType}>Date: </Text>
                       {new Date(event.date).toLocaleDateString()}
                     </Text>
                     <Text className={styles.eventTime}>
-                      <Text className={styles.eventInfoType}>Time:</Text> {event.startTime}
+                      <Text className={styles.eventInfoType}>Time: </Text>
+                      {event.startTime}
                     </Text>
                     <Text className={styles.eventDistance}>
-                      <Text className={styles.eventInfoType}>Distance:</Text>{' '}
+                      <Text className={styles.eventInfoType}>Distance: </Text>
                       {Math.round(event.distance / 1000)} Km
                     </Text>
                     <Text className={styles.eventBy}>
-                      <Text className={styles.eventInfoType}>By:</Text> @
+                      <Text className={styles.eventInfoType}>By: </Text>@
                       {event.hostDetails.username}
                     </Text>
                   </View>

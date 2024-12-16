@@ -63,7 +63,7 @@ interface ExtraConfig {
 }
 
 // Extract the extra config using type assertion
-const extra = Constants.expoConfig?.extra as ExtraConfig;
+export const extra = Constants.expoConfig?.extra as ExtraConfig;
 
 // Check if the extra object is available
 if (!extra) {
@@ -132,6 +132,7 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } finally {
       setLoading(false);
       setRefreshLoading(false);
+      noMoreEventsRef.current = false;
     }
   };
 

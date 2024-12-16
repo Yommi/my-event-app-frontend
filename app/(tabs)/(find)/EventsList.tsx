@@ -12,7 +12,7 @@ import {
   RefreshControl,
   FlatList,
 } from 'react-native';
-import { EventContext, Event } from '../../EventProvider';
+import { EventContext, Event, extra } from '../../EventProvider';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Constants from 'expo-constants';
 
@@ -36,13 +36,6 @@ export default function EventList() {
     return <ActivityIndicator className={'m-auto'} size="large" color="white" />;
   }
 
-  interface ExtraConfig {
-    API_URL: string;
-  }
-
-  // Extract the extra config using type assertion
-  const extra = Constants.expoConfig?.extra as ExtraConfig;
-
   // Check if the extra object is available
   if (!extra) {
     throw new Error('API_URL is not defined in extra config.');
@@ -63,24 +56,27 @@ export default function EventList() {
         />
         <View className={styles.eventInfoCont}>
           <Text className={styles.eventName}>
-            <Text className={styles.eventInfoType}>Name:</Text> {item.name}
+            <Text className={styles.eventInfoType}>Name: </Text>
+            {item.name}
           </Text>
           <Text className={styles.eventAddress}>
-            <Text className={styles.eventInfoType}>Address:</Text> {item.location.address}
+            <Text className={styles.eventInfoType}>Address: </Text>
+            {item.location.address}
           </Text>
           <Text className={styles.eventDate}>
-            <Text className={styles.eventInfoType}>Date:</Text>{' '}
+            <Text className={styles.eventInfoType}>Date: </Text>
             {new Date(item.date).toLocaleDateString()}
           </Text>
           <Text className={styles.eventTime}>
-            <Text className={styles.eventInfoType}>Time:</Text> {item.startTime}
+            <Text className={styles.eventInfoType}>Time: </Text>
+            {item.startTime}
           </Text>
           <Text className={styles.eventDistance}>
-            <Text className={styles.eventInfoType}>Distance:</Text>{' '}
+            <Text className={styles.eventInfoType}>Distance: </Text>
             {Math.round(item.distance / 1000)} Km
           </Text>
           <Text className={styles.eventBy}>
-            <Text className={styles.eventInfoType}>By:</Text> @{item.hostDetails.username}
+            <Text className={styles.eventInfoType}>By: </Text>@{item.hostDetails.username}
           </Text>
         </View>
         <View className={'pl-2 flex-row justify-between'}>

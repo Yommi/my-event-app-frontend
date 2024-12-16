@@ -13,6 +13,7 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
 import React, { useState } from 'react';
+import { extra } from './EventProvider';
 
 export default function Login() {
   const [errorMessage, setErrorMessage] = useState('');
@@ -39,7 +40,7 @@ export default function Login() {
             setLoading(true);
             try {
               // Example API call using axios
-              const response = await axios.post('http://192.168.1.226:5000/api/v1/users/login', {
+              const response = await axios.post(`${extra.API_URL}/api/v1/users/login`, {
                 email: values.email,
                 password: values.password,
               });
@@ -130,12 +131,8 @@ export default function Login() {
           className={styles.linksContainer}
           style={{ width: width * 0.8, height: height * 0.05 }}
         >
-          <Link href="/" className={styles.linksText}>
-            Signup
-          </Link>
-          <Link href="/" className={styles.linksText}>
-            Forgot password?
-          </Link>
+          <TouchableOpacity className={styles.linksText}>Signup</TouchableOpacity>
+          <TouchableOpacity className={styles.linksText}>Forgot password?</TouchableOpacity>
         </View>
       </View>
     </SafeAreaView>

@@ -14,7 +14,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { EventContext } from '../../EventProvider';
+import { EventContext, extra } from '../../EventProvider';
 import Constants from 'expo-constants';
 import Feather from '@expo/vector-icons/Feather';
 import Entypo from '@expo/vector-icons/Entypo';
@@ -22,14 +22,9 @@ import Entypo from '@expo/vector-icons/Entypo';
 export default function EventPage() {
   const { selectedEvent, getSelectedEvent, selectedLoading, refreshEventPage, eventPageLoading } =
     useContext(EventContext)!;
-  interface ExtraConfig {
-    API_URL: string;
-  }
-
   const navigation = useNavigation();
 
-  // Extract the extra config using type assertion
-  const extra = Constants.expoConfig?.extra as ExtraConfig;
+  const [register, setRegister] = useState(true);
 
   // Check if the extra object is available
   if (!extra) {
@@ -50,9 +45,6 @@ export default function EventPage() {
     navigation.setOptions({
       headerTitle: `${selectedEvent?.name}`,
     });
-  }, [navigation, selectedEvent?.name]);
-
-  useEffect(() => {
     getSelectedEvent();
   }, []);
 
@@ -102,21 +94,30 @@ export default function EventPage() {
             ) : null}
             <View className={styles.otherEventInfoCont}>
               <Text className={styles.infoValue}>
-                <Text className={styles.otherEventInfoType}>Distance:</Text>{' '}
+                <Text className={styles.otherEventInfoType}>Distance: </Text>
                 {Math.round(selectedEvent.distance / 1000)} Km
               </Text>
               <Text className={styles.infoValue}>
-                <Text className={styles.otherEventInfoType}>Price:</Text>{' '}
+                <Text className={styles.otherEventInfoType}>Price: </Text>
                 {selectedEvent.currency ? selectedEvent.currency.toUpperCase() : ''}{' '}
                 {selectedEvent.price ? selectedEvent.price.toFixed(2).toLocaleString() : 'Free'}
               </Text>
+              <Text className="text-gray-500 text-lg mt-2">
+                <Text className={styles.otherEventInfoType}>By: </Text>@
+                {selectedEvent.host.username}
+              </Text>
             </View>
-            {true ? null : (
+            {register ? null : (
               <Text className="text-gray-500 underline mb-4 text-right mr-4">Unregister?</Text>
             )}
-            <TouchableOpacity className={styles.buttons}>
-              <Text className={styles.buttonText}>{true ? 'Register' : 'Chat Room'}</Text>
-              {true ? (
+            <TouchableOpacity
+              className={styles.buttons}
+              onPress={() => {
+                setRegister((prev) => !prev);
+              }}
+            >
+              <Text className={styles.buttonText}>{register ? 'Register' : 'Chat Room'}</Text>
+              {register ? (
                 <Feather
                   name="check-circle"
                   size={24}
@@ -146,11 +147,11 @@ const { width, height } = Dimensions.get('window');
 const styles = {
   header: 'mx-auto mt-4 text-yellow-300 text-2xl font-bold underline',
   tagsContainer: 'mt-6 mx-auto flex-row justify-center flex-wrap gap-x-4 gap-y-4',
-  tagContainer: 'p-3 bg-green-600 rounded-2xl',
+  tagContainer: 'p-3 bg-[#312f4d]  rounded-2xl',
   otherEventInfoCont: 'p-4 mt-2',
   otherEventInfoType: 'font-bold text-xl text-yellow-300',
   infoValue: 'text-white text-lg mt-2',
-  buttons: ' flex-row justify-center align-center p-3 mx-4 my-3 bg-blue-800 rounded-3xl',
+  buttons: ' flex-row justify-center align-center p-3 mx-4 my-3 bg-purple-700 rounded-3xl',
   buttonText: 'text-white text-2xl font-bold',
   buttonIcon: 'my-auto ml-2',
 };
