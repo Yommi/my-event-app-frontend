@@ -2,6 +2,7 @@ import React, { createContext, useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import Constants from 'expo-constants';
 import * as Location from 'expo-location';
+import * as SecureStore from 'expo-secure-store';
 
 export interface Event {
   _id: any;
@@ -26,6 +27,7 @@ export interface Event {
   hostDetails: {
     username: string;
   };
+  registeredUsers: [any];
 }
 
 export interface EventContextType {
@@ -54,6 +56,10 @@ export interface EventContextType {
   setSearchText: React.Dispatch<React.SetStateAction<string>>;
   selectedEvent: Event | null;
   setSelectedEvent: React.Dispatch<React.SetStateAction<Event | null>>;
+  isEventPageRefreshed: boolean;
+  setIsEventPageRefreshed: React.Dispatch<React.SetStateAction<boolean>>;
+  registerLoading: boolean;
+  setRegisterLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const EventContext = createContext<EventContextType | undefined>(undefined);
@@ -84,6 +90,8 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [mapError, setMapError] = useState(false);
   const [searchText, setSearchText] = useState<string>('');
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [isEventPageRefreshed, setIsEventPageRefreshed] = useState(false);
+  const [registerLoading, setRegisterLoading] = useState(false);
 
   const regionRef = useRef(null);
   const pageRef = useRef(1);
@@ -119,9 +127,14 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
       const location = listLocation || (await getLocation()); // Use state or fetch fresh
       const { latitude, longitude } = location;
-
+      const token = await SecureStore.getItemAsync('userToken');
       const events = await axios.get(
         `${extra.API_URL}/events/eventsByLocation?lat=${latitude}&lng=${longitude}${query ? `&query=${query}` : ''}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
       );
 
       // Merge nearby and outside events
@@ -141,9 +154,14 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setMapLoading(true);
       const location = listLocation || (await getLocation()); // Use state or fetch fresh
       const { latitude, longitude } = location;
-
+      const token = await SecureStore.getItemAsync('userToken');
       const response = await axios.get(
         `${extra.API_URL}/events/eventsByLocation?lat=${latitude}&lng=${longitude}${query ? `&query=${query}` : ''}&noLimit=true`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
       );
       const events = response.data.data;
       setMapEvents(events);
@@ -163,9 +181,14 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       pageRef.current += 1;
       const location = listLocation || (await getLocation());
       const { latitude, longitude } = location;
-
+      const token = await SecureStore.getItemAsync('userToken');
       const response = await axios.get(
         `${extra.API_URL}/events/eventsByLocation?lat=${latitude}&lng=${longitude}${query ? `&query=${query}` : ''}&page=${pageRef.current}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
       );
       const newEvents = response.data.data;
       if (newEvents.length === 0) {
@@ -196,7 +219,12 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const getSelectedEvent = async () => {
     try {
       setSelectedLoading(true);
-      const response = await axios.get(`${extra.API_URL}/events/${selectedEvent?._id}`);
+      const token = await SecureStore.getItemAsync('userToken');
+      const response = await axios.get(`${extra.API_URL}/events/${selectedEvent?._id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       let event = response.data.data;
       event.distance = selectedEvent?.distance;
       setSelectedEvent(event);
@@ -210,7 +238,12 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const refreshEventPage = async () => {
     try {
       setEventPageLoading(true);
-      const response = await axios.get(`${extra.API_URL}/events/${selectedEvent?._id}`);
+      const token = await SecureStore.getItemAsync('userToken');
+      const response = await axios.get(`${extra.API_URL}/events/${selectedEvent?._id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const event = response.data.data;
       event.distance = selectedEvent?.distance;
       setSelectedEvent(event);
@@ -218,6 +251,8 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       console.log(err);
     } finally {
       setEventPageLoading(false);
+      setIsEventPageRefreshed((prev) => !prev);
+      setRegisterLoading(false);
     }
   };
 
@@ -249,6 +284,10 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setSearchText,
         selectedEvent,
         setSelectedEvent,
+        isEventPageRefreshed,
+        setIsEventPageRefreshed,
+        registerLoading,
+        setRegisterLoading,
       }}
     >
       {children}

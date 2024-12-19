@@ -12,16 +12,18 @@ import { Dimensions } from 'react-native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
-import React, { useState } from 'react';
-import { extra } from './EventProvider';
+import React, { useState, useContext } from 'react';
+import { EventContext, extra } from '../EventProvider';
+import { useRouter } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
 
 export default function Login() {
+  const router = useRouter();
   const [errorMessage, setErrorMessage] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const validationSchema = Yup.object().shape({
-    email: Yup.string().email('Invalid email').required('Email is required'),
     password: Yup.string()
       .min(8, 'Password must be at least 8 characters')
       .required('Password is required'),
@@ -38,15 +40,20 @@ export default function Login() {
             setErrorMessage(''); // Clear error message on submit
             setShowPassword(false);
             setLoading(true);
+            let token;
             try {
               // Example API call using axios
-              const response = await axios.post(`${extra.API_URL}/api/v1/users/login`, {
+              const response = await axios.post(`${extra.API_URL}/auth/login`, {
                 email: values.email,
                 password: values.password,
               });
 
               // Handle successful response
               console.log('Login successful', response.data);
+
+              token = response.data.data.token;
+              await SecureStore.setItemAsync('userToken', token);
+              router.push('/(tabs)/(find)');
 
               // Perform any additional actions here, like navigation
             } catch (error) {
@@ -131,8 +138,12 @@ export default function Login() {
           className={styles.linksContainer}
           style={{ width: width * 0.8, height: height * 0.05 }}
         >
-          <TouchableOpacity className={styles.linksText}>Signup</TouchableOpacity>
-          <TouchableOpacity className={styles.linksText}>Forgot password?</TouchableOpacity>
+          <TouchableOpacity>
+            <Text className={styles.linksText}>Signup</Text>
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <Text className={styles.linksText}>Forgot password?</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </SafeAreaView>

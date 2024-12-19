@@ -1,6 +1,8 @@
 import { useState, useContext, useEffect } from 'react';
 import { useEvent } from 'expo';
 import { useVideoPlayer, VideoView } from 'expo-video';
+import axios from 'axios';
+import * as SecureStore from 'expo-secure-store';
 import {
   Text,
   View,
@@ -15,16 +17,24 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { EventContext, extra } from '../../EventProvider';
-import Constants from 'expo-constants';
 import Feather from '@expo/vector-icons/Feather';
 import Entypo from '@expo/vector-icons/Entypo';
 
 export default function EventPage() {
-  const { selectedEvent, getSelectedEvent, selectedLoading, refreshEventPage, eventPageLoading } =
-    useContext(EventContext)!;
+  const {
+    selectedEvent,
+    getSelectedEvent,
+    selectedLoading,
+    refreshEventPage,
+    eventPageLoading,
+    isEventPageRefreshed,
+    registerLoading,
+    setRegisterLoading,
+  } = useContext(EventContext)!;
   const navigation = useNavigation();
 
-  const [register, setRegister] = useState(true);
+  const [registerState, setRegisterState] = useState(false);
+  const [checkingRegister, setCheckingRegister] = useState(true);
 
   // Check if the extra object is available
   if (!extra) {
@@ -47,6 +57,45 @@ export default function EventPage() {
     });
     getSelectedEvent();
   }, []);
+
+  useEffect(() => {
+    const checkIfRegistered = async () => {
+      try {
+        setCheckingRegister(true);
+        const token = await SecureStore.getItemAsync('userToken');
+        const response = await axios.get(
+          `${extra.API_URL}/events/checkRegistered?event=${selectedEvent?._id}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
+        setRegisterState(response.data);
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setCheckingRegister(false);
+      }
+    };
+    checkIfRegistered();
+  }, [isEventPageRefreshed]);
+
+  const register = async () => {
+    try {
+      setRegisterLoading(true);
+      const token = await SecureStore.getItemAsync('userToken');
+      const response = await axios.patch(
+        `${extra.API_URL}/events/register?event=${selectedEvent?._id}`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+    } catch (err) {
+      console.log(err);
+    } finally {
+      refreshEventPage();
+    }
+  };
 
   if (selectedLoading) {
     return (
@@ -107,31 +156,53 @@ export default function EventPage() {
                 {selectedEvent.host.username}
               </Text>
             </View>
-            {register ? null : (
-              <Text className="text-gray-500 underline mb-4 text-right mr-4">Unregister?</Text>
+            {checkingRegister ? (
+              <ActivityIndicator size="small" color="white" />
+            ) : (
+              <View>
+                {registerState ? (
+                  <Text className="text-gray-500 underline mb-4 text-right mr-4">Unregister?</Text>
+                ) : null}
+                {!registerState ? (
+                  <TouchableOpacity
+                    className={styles.buttons}
+                    onPress={() => {
+                      register();
+                    }}
+                  >
+                    {registerLoading ? (
+                      <ActivityIndicator size="small" color="white" className="text-2xl" />
+                    ) : (
+                      <View className="flex-row">
+                        <Text className={styles.buttonText}>Register</Text>
+
+                        <Feather
+                          name="check-circle"
+                          size={24}
+                          color="white"
+                          className={styles.buttonIcon}
+                        />
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                    className={styles.buttons}
+                    onPress={() => {
+                      register();
+                    }}
+                  >
+                    <Text className={styles.buttonText}>Chat Room</Text>
+
+                    <Entypo name="typing" size={24} color="white" className={styles.buttonIcon} />
+                  </TouchableOpacity>
+                )}
+                <TouchableOpacity className={styles.buttons}>
+                  <Text className={styles.buttonText}>Get Directions</Text>
+                  <Entypo name="direction" size={24} color="white" className={styles.buttonIcon} />
+                </TouchableOpacity>
+              </View>
             )}
-            <TouchableOpacity
-              className={styles.buttons}
-              onPress={() => {
-                setRegister((prev) => !prev);
-              }}
-            >
-              <Text className={styles.buttonText}>{register ? 'Register' : 'Chat Room'}</Text>
-              {register ? (
-                <Feather
-                  name="check-circle"
-                  size={24}
-                  color="white"
-                  className={styles.buttonIcon}
-                />
-              ) : (
-                <Entypo name="typing" size={24} color="white" className={styles.buttonIcon} />
-              )}
-            </TouchableOpacity>
-            <TouchableOpacity className={styles.buttons}>
-              <Text className={styles.buttonText}>Get Directions</Text>
-              <Entypo name="direction" size={24} color="white" className={styles.buttonIcon} />
-            </TouchableOpacity>
           </View>
         ) : (
           <View className="flex-1 justify-center items-center">
