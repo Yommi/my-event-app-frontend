@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from 'react';
+import { useState, useContext, useEffect, useRef } from 'react';
 import { useEvent } from 'expo';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import axios from 'axios';
@@ -30,11 +30,16 @@ export default function EventPage() {
     isEventPageRefreshed,
     registerLoading,
     setRegisterLoading,
+    unregisterLoading,
+    setUnRegisterLoading,
   } = useContext(EventContext)!;
   const navigation = useNavigation();
 
   const [registerState, setRegisterState] = useState(false);
   const [checkingRegister, setCheckingRegister] = useState(true);
+  // const [prevHeight, setPrevHeight] = useState(0);
+
+  // const scrollViewRef = useRef<any>(null);
 
   // Check if the extra object is available
   if (!extra) {
@@ -97,6 +102,28 @@ export default function EventPage() {
     }
   };
 
+  const unregister = async () => {
+    try {
+      setUnRegisterLoading(true);
+      const token = await SecureStore.getItemAsync('userToken');
+      const response = await axios.patch(
+        `${extra.API_URL}/events/unregister?event=${selectedEvent?._id}`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+    } catch (err) {
+      console.log(err);
+    } finally {
+      refreshEventPage();
+    }
+  };
+
+  // const scrollToBottom = () => {
+  //   scrollViewRef.current?.scrollToEnd({ animated: true });
+  // };
+
   if (selectedLoading) {
     return (
       <SafeAreaView className=" flex-1 bg-[#191827]">
@@ -108,6 +135,7 @@ export default function EventPage() {
   return (
     <SafeAreaView className="bg-[#191827]">
       <ScrollView
+        // ref={scrollViewRef}
         refreshControl={
           <RefreshControl refreshing={eventPageLoading} onRefresh={refreshEventPage} />
         }
@@ -161,7 +189,20 @@ export default function EventPage() {
             ) : (
               <View>
                 {registerState ? (
-                  <Text className="text-gray-500 underline mb-4 text-right mr-4">Unregister?</Text>
+                  <View className="flex-row justify-end items-center mb-4 mr-4">
+                    {unregisterLoading ? (
+                      <ActivityIndicator size="small" color="white" className="mr-6" />
+                    ) : (
+                      <Text
+                        onPress={() => {
+                          unregister();
+                        }}
+                        className="text-gray-500 underline text-right"
+                      >
+                        Unregister?
+                      </Text>
+                    )}
+                  </View>
                 ) : null}
                 {!registerState ? (
                   <TouchableOpacity

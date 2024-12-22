@@ -60,6 +60,8 @@ export interface EventContextType {
   setIsEventPageRefreshed: React.Dispatch<React.SetStateAction<boolean>>;
   registerLoading: boolean;
   setRegisterLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  unregisterLoading: boolean;
+  setUnRegisterLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const EventContext = createContext<EventContextType | undefined>(undefined);
@@ -92,6 +94,7 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [isEventPageRefreshed, setIsEventPageRefreshed] = useState(false);
   const [registerLoading, setRegisterLoading] = useState(false);
+  const [unregisterLoading, setUnRegisterLoading] = useState(false);
 
   const regionRef = useRef(null);
   const pageRef = useRef(1);
@@ -253,6 +256,7 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setEventPageLoading(false);
       setIsEventPageRefreshed((prev) => !prev);
       setRegisterLoading(false);
+      setUnRegisterLoading(false);
     }
   };
 
@@ -288,6 +292,8 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setIsEventPageRefreshed,
         registerLoading,
         setRegisterLoading,
+        unregisterLoading,
+        setUnRegisterLoading,
       }}
     >
       {children}
