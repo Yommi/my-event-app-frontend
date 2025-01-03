@@ -1,21 +1,37 @@
 {
   "expo": {
-    "name": "Frontend",
-    "slug": "Frontend",
+    "name": "myEventApp",
+    "slug": "myEventApp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "config": {},
+      "ios": {
+        "bundleIdentifier": "com.yourname.yourapp",
+        "infoPlist": {
+          "LSApplicationQueriesSchemes": [
+            "comgooglemaps",
+            "googlemaps"
+          ]
+        }
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "config": {},
+      "package": "com.anonymous.myEventApp"
     },
     "web": {
       "bundler": "metro",
@@ -24,18 +40,14 @@
     },
     "plugins": [
       "expo-router",
-      [
-        "expo-splash-screen",
-        {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
-        }
-      ]
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "newArchEnabled": true,
+    "extra": {
+      "API_URL": "http://192.168.1.226:5000/api/v1"
     }
   }
 }
