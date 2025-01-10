@@ -6,6 +6,7 @@ import {
   Button,
   TouchableOpacity,
   ActivityIndicator,
+  Platform
 } from 'react-native';
 import { Link } from 'expo-router';
 import { Dimensions } from 'react-native';
@@ -75,6 +76,7 @@ export default function Login() {
                 className={styles.input}
                 style={{ height: height * 0.05, width: width * 0.8 }}
                 placeholder="Email"
+                placeholderTextColor={'grey'}
                 onChangeText={(text) => {
                   handleChange('email')(text);
                   setErrorMessage(''); // Clear error message on input change
@@ -91,6 +93,7 @@ export default function Login() {
                   className={styles.input}
                   style={{ height: height * 0.05, width: width * 0.8 }}
                   placeholder="Password"
+                  placeholderTextColor={'grey'}
                   secureTextEntry={!showPassword} // Control visibility
                   onChangeText={(text) => {
                     handleChange('password')(text);
@@ -102,7 +105,9 @@ export default function Login() {
                 {touched.password && errors.password && (
                   <Text className={styles.error}>{errors.password}</Text>
                 )}
-                <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                <TouchableOpacity
+                className='bg-transparent'
+                onPress={() => setShowPassword(!showPassword)}>
                   <Text className={styles.showPasswordText}>
                     {showPassword ? 'Hide Password' : 'Show Password'}
                   </Text>
@@ -110,25 +115,24 @@ export default function Login() {
               </View>
 
               {errorMessage ? <Text className={styles.error}>{errorMessage}</Text> : null}
-              <View
+              <TouchableOpacity
                 className={styles.submitContainer}
                 style={{ width: width * 0.6, height: height * 0.07 }}
+                onPress={() => {
+                  if (!loading) {
+                    setErrorMessage(''); // clear errors only once
+                    handleSubmit();
+                  }
+                }}
               >
                 {loading ? (
                   <ActivityIndicator size="small" color="#fff" /> // Loading indicator
                 ) : (
-                  <Button
-                    color={'white'}
-                    title="Submit"
-                    onPress={() => {
-                      if (!loading) {
-                        setErrorMessage(''); // clear errors only once
-                        handleSubmit();
-                      }
-                    }}
-                  />
+                  <Text
+                    className='text-white text-center text-xl'
+                  >Submit</Text>
                 )}
-              </View>
+              </TouchableOpacity>
             </View>
           )}
         </Formik>
@@ -153,7 +157,7 @@ const { width, height } = Dimensions.get('window');
 const styles = {
   background: 'bg-[#151420] flex-1 justify-center items-center',
   loginContainer: `bg-[#191827] rounded-lg flex items-center`,
-  loginHeader: `text-3xl font-bold mt-6 mb-3 text-[#edf1f3]`,
+  loginHeader: `text-3xl font-bold mt-4 mb-3 text-[#edf1f3]`,
   inputsContainer: 'flex-1 justify-center p-4',
   input: `text-white border border-gray-500 rounded-3xl mb-4 px-6`,
   error: 'text-red-500',

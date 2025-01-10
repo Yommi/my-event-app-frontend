@@ -171,14 +171,13 @@ export default function EventPage() {
   }
 
   return (
-    <SafeAreaView className="bg-[#191827]">
+    <SafeAreaView className="bg-[#191827] flex-1">
       <ScrollView
-        // ref={scrollViewRef}
         refreshControl={
           <RefreshControl refreshing={eventPageLoading} onRefresh={refreshEventPage} />
         }
         showsVerticalScrollIndicator={false}
-        className="mt-2 h-full"
+        className="h-full"
       >
         {selectedEvent ? (
           <View className="mb-8">

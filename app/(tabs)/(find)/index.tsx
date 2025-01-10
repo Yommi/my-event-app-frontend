@@ -1,7 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { SafeAreaView, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import LogoAndSearchBar from './LogoAndSearchBar';
+import LogoAndSearchBar from '../../../components/ui/SearchBar';
 import EventList from './EventsList';
 import MapView from './MapView';
 import AnimatedTabBar from './AnimatedTabBar';

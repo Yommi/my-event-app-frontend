@@ -14,7 +14,6 @@ import {
 } from 'react-native';
 import { EventContext, Event, extra } from '../../EventProvider';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import Constants from 'expo-constants';
 
 export default function EventList() {
   const router = useRouter();
