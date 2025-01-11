@@ -1,12 +1,23 @@
 import { Stack } from 'expo-router';
 import MyEventsProvider from '../../MyEventsProvider';
+import EventProvider from '../../EventProvider';
 
 export default function ComponentName() {
   return (
-    <MyEventsProvider>
-    <Stack>
-      <Stack.Screen name="MyEvents" options={{ headerShown: false }} />
-    </Stack>
-    </MyEventsProvider>
+    <EventProvider>
+      <MyEventsProvider>
+        <Stack>
+          <Stack.Screen name="MyEvents" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="MyEventPage"
+            options={{
+              headerBackTitle: 'Back',
+              headerTitle: '',
+              headerTransparent: true,
+            }}
+          />
+        </Stack>
+      </MyEventsProvider>
+    </EventProvider>
   );
 }

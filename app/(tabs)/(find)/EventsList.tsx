@@ -32,7 +32,9 @@ export default function EventList() {
 
   // Handle loading state
   if (loading && !refreshLoading) {
-    return <ActivityIndicator className={'m-auto'} size="large" color="white" />;
+    return (
+      <ActivityIndicator className={'m-auto'} size="large" color="white" />
+    );
   }
 
   // Check if the extra object is available
@@ -70,29 +72,51 @@ export default function EventList() {
             <Text className={styles.eventInfoType}>Time: </Text>
             {item.startTime}
           </Text>
-          <Text className={styles.eventDistance}>
-            <Text className={styles.eventInfoType}>Distance: </Text>
-            {Math.round(item.distance / 1000)} Km
-          </Text>
+          {item.distance ? (
+            <Text className={styles.eventDistance}>
+              <Text className={styles.eventInfoType}>Distance: </Text>
+              {Math.round(item.distance / 1000)} Km
+            </Text>
+          ) : null}
           <Text className={styles.eventBy}>
-            <Text className={styles.eventInfoType}>By: </Text>@{item.hostDetails.username}
+            <Text className={styles.eventInfoType}>By: </Text>@
+            {item.hostDetails.username}
           </Text>
         </View>
         <View className={'pl-2 flex-row justify-between'}>
           <View className={'h-12 bg-green-500 rounded-full mt-4 mr-4'}>
             <Text className={'text-white font-bold text-xl my-auto mx-6'}>
               {item.currency ? item.currency.toUpperCase() : ''}{' '}
-              {item.price ? item.price.toFixed(2).toLocaleString() : 'Free'}
+              {item.price
+                ? item.price.toFixed(2).toLocaleString()
+                : 'Free'}
             </Text>
           </View>
           {item.private ? (
-            <View className={'flex-row h-12 bg-black rounded-full mt-4 flex-end mr-4 px-6'}>
-              <Icon name="lock" size={20} color="#ffff" className={'my-auto mr-2'} />
-              <Text className={'text-white font-bold text-xl my-auto'}>Private</Text>
+            <View
+              className={
+                'flex-row h-12 bg-black rounded-full mt-4 flex-end mr-4 px-6'
+              }
+            >
+              <Icon
+                name="lock"
+                size={20}
+                color="#ffff"
+                className={'my-auto mr-2'}
+              />
+              <Text className={'text-white font-bold text-xl my-auto'}>
+                Private
+              </Text>
             </View>
           ) : (
-            <View className={'h-12 bg-black rounded-full mt-4 flex-end mr-4'}>
-              <Text className={'text-white font-bold text-xl my-auto mx-6'}>Public</Text>
+            <View
+              className={'h-12 bg-black rounded-full mt-4 flex-end mr-4'}
+            >
+              <Text
+                className={'text-white font-bold text-xl my-auto mx-6'}
+              >
+                Public
+              </Text>
             </View>
           )}
         </View>
@@ -109,7 +133,12 @@ export default function EventList() {
           return renderItem({ item });
         }}
         keyExtractor={(item, index) => index.toString()}
-        refreshControl={<RefreshControl refreshing={refreshLoading} onRefresh={refreshData} />}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshLoading}
+            onRefresh={refreshData}
+          />
+        }
         contentContainerStyle={{ paddingBottom: 30 }}
         onEndReached={({ distanceFromEnd }) => {
           if (distanceFromEnd < 0) return;
@@ -125,11 +154,19 @@ export default function EventList() {
         }
         ListEmptyComponent={
           error ? (
-            <View className={`flex-1 justify-center items-center`} style={{ height: height * 0.7 }}>
-              <Text className={'text-white'}>Failed to load events, Please refresh!</Text>
+            <View
+              className={`flex-1 justify-center items-center`}
+              style={{ height: height * 0.7 }}
+            >
+              <Text className={'text-white'}>
+                Failed to load events, Please refresh!
+              </Text>
             </View>
           ) : (
-            <View className={`flex-1 justify-center items-center`} style={{ height: height * 0.7 }}>
+            <View
+              className={`flex-1 justify-center items-center`}
+              style={{ height: height * 0.7 }}
+            >
               <Text className={'text-white'}>No Events Found 🥲</Text>
             </View>
           )
@@ -144,7 +181,8 @@ const styles = {
   eventGroupCont: 'mt-3 mb-2',
   eventGroupTitle: 'text-white text-lg font-bold mx-auto mb-1',
   eventGroupLine: 'w-full h-[0.5] bg-gray-500',
-  eventCont: 'flex justify-between mt-8 mx-auto bg-[#191827] rounded-2xl w-[95%] pb-6',
+  eventCont:
+    'flex justify-between mt-8 mx-auto bg-[#191827] rounded-2xl w-[95%] pb-6',
   eventInfoCont: 'mt-4 p-2',
   eventInfoType: 'font-bold text-xl text-yellow-300',
   eventName: 'text-white font-bold text-xl',

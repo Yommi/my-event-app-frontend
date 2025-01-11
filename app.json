@@ -47,7 +47,7 @@
     },
     "newArchEnabled": true,
     "extra": {
-      "API_URL": "http://192.168.1.226:5000/api/v1"
+      "API_URL": "http://172.20.10.12:5000/api/v1"
     }
   }
 }

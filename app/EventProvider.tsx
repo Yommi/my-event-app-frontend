@@ -48,6 +48,7 @@ export interface EventContextType {
   noMoreEventsRef: any;
   refreshLoading: boolean;
   error: boolean;
+  getLocation: any;
   fetchListData: (query?: string) => Promise<void>;
   fetchMapData: () => Promise<void>;
   fetchMoreEvents: (query?: string) => Promise<void>;
@@ -70,7 +71,9 @@ interface ExtraConfig {
   API_URL: string;
 }
 
-export const EventContext = createContext<EventContextType | undefined>(undefined);
+export const EventContext = createContext<EventContextType | undefined>(
+  undefined,
+);
 
 // Extract the extra config using type assertion
 export const extra = Constants.expoConfig?.extra as ExtraConfig;
@@ -80,14 +83,16 @@ if (!extra) {
   throw new Error('API_URL is not defined in extra config.');
 }
 
-export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const EventProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [loading, setLoading] = useState(true);
   const [refreshLoading, setRefreshLoading] = useState(false);
   const [error, setError] = useState(false);
   const [events, setEvents] = useState<Event[]>([]);
   const [userLocation, setuserLocation] = useState<any>(null);
   const [mapEvents, setMapEvents] = useState<Event[]>([]);
-  const [isFetchingMore, setIsFetchingMore] = useState<boolean>(true);
+  const [isFetchingMore, setIsFetchingMore] = useState<boolean>(false);
   const [mapLoading, setMapLoading] = useState<boolean>(true);
   const [selectedLoading, setSelectedLoading] = useState<boolean>(true);
   const [eventPageLoading, setEventPageLoading] = useState<boolean>(false);
@@ -110,7 +115,8 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const getLocation = async () => {
     try {
       // Request permission for location (important for iOS and Android)
-      const { status } = await Location.requestForegroundPermissionsAsync();
+      const { status } =
+        await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         console.log('Permission to access location was denied');
         return;
@@ -197,7 +203,6 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       );
       const newEvents = response.data.data;
       if (newEvents.length === 0) {
-        // setNoMoreEvents(true);
         noMoreEventsRef.current = true; // No more events available
         pageRef.current -= 1;
       } else {
@@ -215,7 +220,6 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setRefreshLoading(true);
     setSearchText('');
     pageRef.current = 1;
-    // setNoMoreEvents(false);
     noMoreEventsRef.current = false;
     await fetchListData();
     await fetchMapData();
@@ -225,11 +229,14 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     try {
       setSelectedLoading(true);
       const token = await SecureStore.getItemAsync('userToken');
-      const response = await axios.get(`${extra.API_URL}/events/${selectedEvent?._id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await axios.get(
+        `${extra.API_URL}/events/${selectedEvent?._id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
       let event = response.data.data;
       event.distance = selectedEvent?.distance;
       setSelectedEvent(event);
@@ -244,11 +251,14 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     try {
       setEventPageLoading(true);
       const token = await SecureStore.getItemAsync('userToken');
-      const response = await axios.get(`${extra.API_URL}/events/${selectedEvent?._id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await axios.get(
+        `${extra.API_URL}/events/${selectedEvent?._id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
       const event = response.data.data;
       event.distance = selectedEvent?.distance;
       setSelectedEvent(event);
@@ -280,6 +290,7 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         noMoreEventsRef,
         refreshLoading,
         error,
+        getLocation,
         fetchListData,
         fetchMapData,
         fetchMoreEvents,
