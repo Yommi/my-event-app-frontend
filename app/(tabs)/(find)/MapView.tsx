@@ -16,10 +16,14 @@ import {
   ImageBackground,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import MapView, { Marker, Callout, Circle, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, {
+  Marker,
+  Callout,
+  Circle,
+  PROVIDER_GOOGLE,
+} from 'react-native-maps';
 import * as Location from 'expo-location';
 import { EventContext, extra } from '../../EventProvider';
-import Constants from 'expo-constants';
 
 export default function App() {
   const router = useRouter();
@@ -27,8 +31,14 @@ export default function App() {
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
   // const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const { fetchMapData, mapEvents, setSelectedEvent, regionRef, mapLoading, setMapLoading } =
-    useContext(EventContext)!;
+  const {
+    fetchMapData,
+    mapEvents,
+    setSelectedEvent,
+    regionRef,
+    mapLoading,
+    setMapLoading,
+  } = useContext(EventContext)!;
 
   // Check if the extra object is available
   if (!extra) {
@@ -40,7 +50,8 @@ export default function App() {
     const getLocation = async () => {
       try {
         // Request permission for location (important for iOS and Android)
-        const { status } = await Location.requestForegroundPermissionsAsync();
+        const { status } =
+          await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
           console.log('Permission to access location was denied');
           return;
@@ -77,7 +88,9 @@ export default function App() {
   };
 
   if (mapLoading) {
-    return <ActivityIndicator size="large" color="white" className="m-auto" />;
+    return (
+      <ActivityIndicator size="large" color="white" className="m-auto" />
+    );
   }
 
   return (
@@ -110,7 +123,11 @@ export default function App() {
                     source={{
                       uri: `${extra.API_URL}/images/${event.displayCover}`,
                     }}
-                    style={{ height: height * 0.2, width: width * 0.9, overflow: 'hidden' }}
+                    style={{
+                      height: height * 0.2,
+                      width: width * 0.9,
+                      overflow: 'hidden',
+                    }}
                     resizeMode="cover"
                   />
                   <View className={styles.eventInfoCont}>
@@ -119,7 +136,9 @@ export default function App() {
                       {event.name}
                     </Text>
                     <Text className={styles.eventAddress}>
-                      <Text className={styles.eventInfoType}>Address: </Text>
+                      <Text className={styles.eventInfoType}>
+                        Address:{' '}
+                      </Text>
                       {event.location.address}
                     </Text>
                     <Text className={styles.eventDate}>
@@ -131,7 +150,9 @@ export default function App() {
                       {event.startTime}
                     </Text>
                     <Text className={styles.eventDistance}>
-                      <Text className={styles.eventInfoType}>Distance: </Text>
+                      <Text className={styles.eventInfoType}>
+                        Distance:{' '}
+                      </Text>
                       {Math.round(event.distance / 1000)} Km
                     </Text>
                     <Text className={styles.eventBy}>
@@ -140,22 +161,55 @@ export default function App() {
                     </Text>
                   </View>
                   <View className={'pl-2 flex-row justify-between'}>
-                    <View className={'h-12 bg-green-500 rounded-full mt-4 mr-4'}>
-                      <Text className={'text-white font-bold text-xl my-auto mx-6'}>
-                        {event.currency ? event.currency.toUpperCase() : ''}{' '}
+                    <View
+                      className={
+                        'h-12 bg-green-500 rounded-full mt-4 mr-4'
+                      }
+                    >
+                      <Text
+                        className={
+                          'text-white font-bold text-xl my-auto mx-6'
+                        }
+                      >
+                        {event.currency
+                          ? event.currency.toUpperCase()
+                          : ''}{' '}
                         {event.price ? event.price.toFixed(2) : 'Free'}
                       </Text>
                     </View>
                     {event.private ? (
                       <View
-                        className={'flex-row h-12 bg-black rounded-full mt-4 flex-end mr-4 px-6'}
+                        className={
+                          'flex-row h-12 bg-black rounded-full mt-4 flex-end mr-4 px-6'
+                        }
                       >
-                        <Icon name="lock" size={20} color="#ffff" className={'my-auto mr-2'} />
-                        <Text className={'text-white font-bold text-xl my-auto'}>Private</Text>
+                        <Icon
+                          name="lock"
+                          size={20}
+                          color="#ffff"
+                          className={'my-auto mr-2'}
+                        />
+                        <Text
+                          className={
+                            'text-white font-bold text-xl my-auto'
+                          }
+                        >
+                          Private
+                        </Text>
                       </View>
                     ) : (
-                      <View className={'h-12 bg-black rounded-full mt-4 flex-end mr-4'}>
-                        <Text className={'text-white font-bold text-xl my-auto mx-6'}>Public</Text>
+                      <View
+                        className={
+                          'h-12 bg-black rounded-full mt-4 flex-end mr-4'
+                        }
+                      >
+                        <Text
+                          className={
+                            'text-white font-bold text-xl my-auto mx-6'
+                          }
+                        >
+                          Public
+                        </Text>
                       </View>
                     )}
                   </View>

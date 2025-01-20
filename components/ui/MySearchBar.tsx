@@ -1,19 +1,19 @@
-import React, { useContext } from 'react';
-import { Text, TextInput, View, Dimensions } from 'react-native';
+import React, { useContext, useEffect } from 'react';
+import { TextInput, View, Dimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { EventContext } from '../../app/EventProvider';
+import { MyEventsContext } from '../../app/MyEventsProvider';
+import { useRoute } from '@react-navigation/native';
 
-interface Props {
-  activeTab: 'card' | 'map';
-}
-export default function SearchBar() {
-  const { fetchListData, searchText, setSearchText, pageRef } =
-    useContext(EventContext)!;
+export default function MySearchBar({ currentTab }: any) {
+  const { fetchCreated, mySearchText, setMySearchText, createdPageRef } =
+    useContext(MyEventsContext)!;
 
   const handleSearch = (text: string) => {
-    pageRef.current = 1;
-    setSearchText(text);
-    fetchListData(text);
+    setMySearchText(text);
+    if (currentTab === 'CreatedList') {
+      createdPageRef.current = 1;
+      fetchCreated(text);
+    }
   };
 
   return (
@@ -31,19 +31,12 @@ export default function SearchBar() {
         <TextInput
           className={' text-white w-full h-full '}
           placeholder="Type to search..."
-          value={searchText}
+          value={mySearchText}
           onChangeText={handleSearch}
         />
       </View>
     </View>
   );
-  //  : (
-  //   <View className="w-full flex justify-center pb-6 h-14">
-  //     <Text className="text-white text-center font-bold text-3xl">
-  //       Evently
-  //     </Text>
-  //   </View>
-  // );
 }
 
 const { width, height } = Dimensions.get('window');

@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { useScrollToTop } from '@react-navigation/native';
 import {
@@ -13,11 +13,11 @@ import {
   FlatList,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { MyEventsContext, MyEventsType } from '../../MyEventsProvider';
-import { EventContext } from '../../EventProvider';
-import { extra } from '../../EventProvider';
+import { MyEventsContext, MyEventsType } from '../../../MyEventsProvider';
+import { EventContext } from '../../../EventProvider';
+import { extra } from '../../../EventProvider';
 
-export default function CreatedList() {
+export default function RegList() {
   const router = useRouter();
   const ref = React.useRef(null);
   useScrollToTop(ref);
@@ -25,13 +25,21 @@ export default function CreatedList() {
   const { setSelectedEvent } = useContext(EventContext)!;
 
   const {
-    createdEvents,
-    loadingCreated,
-    fetchMoreCreated,
-    isFetchingMoreCreated,
-    createdRefreshLoading,
-    refreshCreated,
+    fetchRegList,
+    regEvents,
+    loadingReg,
+    fetchMoreReg,
+    isFetchingMoreReg,
+    regRefreshLoading,
+    refreshReg,
   } = useContext(MyEventsContext)!;
+
+  useEffect(() => {
+    const fetRegistered = async () => {
+      await fetchRegList();
+    };
+    fetRegistered();
+  }, []);
 
   if (!extra) {
     throw new Error('API_URL is not defined in extra config.');
@@ -119,7 +127,7 @@ export default function CreatedList() {
     </TouchableWithoutFeedback>
   );
 
-  if (loadingCreated && !createdRefreshLoading) {
+  if (loadingReg && !regRefreshLoading) {
     return (
       <ActivityIndicator className={'m-auto'} size="large" color="white" />
     );
@@ -129,25 +137,25 @@ export default function CreatedList() {
     <SafeAreaView style={{ flex: 1 }}>
       <FlatList
         ref={ref}
-        data={createdEvents}
+        data={regEvents}
         renderItem={({ item, index }) => {
           return renderItem({ item });
         }}
         keyExtractor={(item, index) => index.toString()}
         refreshControl={
           <RefreshControl
-            refreshing={createdRefreshLoading}
-            onRefresh={refreshCreated}
+            refreshing={regRefreshLoading}
+            onRefresh={refreshReg}
           />
         }
         contentContainerStyle={{ paddingBottom: 30 }}
         onEndReached={({ distanceFromEnd }) => {
           if (distanceFromEnd < 0) return;
-          fetchMoreCreated();
+          fetchMoreReg();
         }}
         onEndReachedThreshold={0.7}
         ListFooterComponent={
-          isFetchingMoreCreated ? (
+          isFetchingMoreReg ? (
             <View className="flex-1 mt-4 justify-center items-center">
               <ActivityIndicator size="small" color="white" />
             </View>

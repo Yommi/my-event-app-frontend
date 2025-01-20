@@ -1,4 +1,4 @@
-import { Stack } from 'expo-router';
+import { Stack, Tabs } from 'expo-router';
 import MyEventsProvider from '../../MyEventsProvider';
 import EventProvider from '../../EventProvider';
 
@@ -7,7 +7,7 @@ export default function ComponentName() {
     <EventProvider>
       <MyEventsProvider>
         <Stack>
-          <Stack.Screen name="MyEvents" options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen
             name="MyEventPage"
             options={{

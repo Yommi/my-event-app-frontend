@@ -1,11 +1,7 @@
-import { Text, View, StyleSheet } from 'react-native';
+import { Text, View, Dimensions } from 'react-native';
 
-export default function ComponentName() {
-  const style = StyleSheet.create({});
-
-  return (
-    <View>
-      <Text></Text>
-    </View>
-  );
+export default function Index() {
+  return <View></View>;
 }
+
+const styles = {};

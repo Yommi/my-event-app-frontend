@@ -148,7 +148,6 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({
         },
       );
 
-      // Merge nearby and outside events
       setEvents(events.data.data);
     } catch (err) {
       setError(true);
@@ -222,7 +221,7 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({
     pageRef.current = 1;
     noMoreEventsRef.current = false;
     await fetchListData();
-    await fetchMapData();
+    // await fetchMapData();
   };
 
   const getSelectedEvent = async () => {
