@@ -39,7 +39,7 @@ export interface MyEventsType {
 interface MyEventsContextType {
   createdEvents: MyEventsType[];
   loadingCreated: boolean;
-  CreatedErrorMessage: string;
+  createdErrorMessage: string;
   createdPageRef: any;
   fetchingMoreCreatedRef: any;
   noMoreCreatedEventsRef: any;
@@ -57,6 +57,8 @@ interface MyEventsContextType {
   fetchMoreReg: (query?: string) => Promise<void>;
   refreshReg: () => Promise<void>;
   isFetchingMoreReg: boolean;
+  regPageRef: any;
+  regErrorMessage: string;
 }
 
 // Create the context with a default value of undefined
@@ -73,7 +75,7 @@ export const MyEventsProvider: React.FC<{ children: React.ReactNode }> = ({
   const [loadingCreated, setLoadingCreated] = useState<boolean>(false);
   const [createdRefreshLoading, setCreatedRefreshLoading] =
     useState<boolean>(false);
-  const [CreatedErrorMessage, setCreatedErrorMessage] =
+  const [createdErrorMessage, setCreatedErrorMessage] =
     useState<string>('');
   const [isFetchingMoreCreated, setIsFetchingMoreCreated] =
     useState<boolean>(true);
@@ -240,7 +242,7 @@ export const MyEventsProvider: React.FC<{ children: React.ReactNode }> = ({
         createdEvents,
         loadingCreated,
         createdRefreshLoading,
-        CreatedErrorMessage,
+        createdErrorMessage,
         fetchCreated,
         fetchMoreCreated,
         refreshCreated,
@@ -257,6 +259,8 @@ export const MyEventsProvider: React.FC<{ children: React.ReactNode }> = ({
         fetchMoreReg,
         refreshReg,
         isFetchingMoreReg,
+        regPageRef,
+        regErrorMessage,
       }}
     >
       {children}

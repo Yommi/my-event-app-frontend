@@ -31,6 +31,7 @@ export default function CreatedList() {
     isFetchingMoreCreated,
     createdRefreshLoading,
     refreshCreated,
+    createdErrorMessage,
   } = useContext(MyEventsContext)!;
 
   if (!extra) {
@@ -153,6 +154,23 @@ export default function CreatedList() {
             </View>
           ) : null
         }
+        ListEmptyComponent={
+          createdErrorMessage ? (
+            <View
+              className={`flex-1 justify-center items-center`}
+              style={{ height: height * 0.7 }}
+            >
+              <Text className={'text-white'}>{createdErrorMessage}</Text>
+            </View>
+          ) : (
+            <View
+              className={`flex-1 justify-center items-center`}
+              style={{ height: height * 0.7 }}
+            >
+              <Text className={'text-white'}>No Events Found 🥲</Text>
+            </View>
+          )
+        }
       />
     </SafeAreaView>
   );
@@ -164,7 +182,7 @@ const styles = {
   eventGroupTitle: 'text-white text-lg font-bold mx-auto mb-1',
   eventGroupLine: 'w-full h-[0.5] bg-gray-500',
   eventCont:
-    'flex justify-between mt-8 mx-auto bg-[#191827] rounded-2xl w-[95%] pb-6',
+    'flex justify-between mt-8 mx-auto bg-[#191827] rounded-3xl w-[95%] pb-6',
   eventInfoCont: 'mt-4 p-2',
   eventInfoType: 'font-bold text-xl text-yellow-300',
   eventName: 'text-white font-bold text-xl',

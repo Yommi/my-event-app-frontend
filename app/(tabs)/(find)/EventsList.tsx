@@ -178,11 +178,8 @@ export default function EventList() {
 
 const { width, height } = Dimensions.get('window');
 const styles = {
-  eventGroupCont: 'mt-3 mb-2',
-  eventGroupTitle: 'text-white text-lg font-bold mx-auto mb-1',
-  eventGroupLine: 'w-full h-[0.5] bg-gray-500',
   eventCont:
-    'flex justify-between mt-8 mx-auto bg-[#191827] rounded-2xl w-[95%] pb-6',
+    'flex justify-between my-4 mx-auto bg-[#191827] rounded-3xl w-[95%] pb-6',
   eventInfoCont: 'mt-4 p-2',
   eventInfoType: 'font-bold text-xl text-yellow-300',
   eventName: 'text-white font-bold text-xl',

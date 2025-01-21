@@ -31,6 +31,7 @@ export default function SearchBar() {
         <TextInput
           className={' text-white w-full h-full '}
           placeholder="Type to search..."
+          placeholderTextColor={'gray'}
           value={searchText}
           onChangeText={handleSearch}
         />

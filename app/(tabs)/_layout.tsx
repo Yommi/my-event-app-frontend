@@ -11,13 +11,19 @@ export default function () {
 
   return (
     <EventProvider>
-      <Tabs>
+      <Tabs
+        screenOptions={{
+          tabBarActiveTintColor: '#a855f7',
+        }}
+      >
         <Tabs.Screen
           name="(home)"
           options={{
             title: 'Home',
             headerShown: false,
-            tabBarIcon: ({ color }) => <FontAwesome size={size} name="home" color={color} />,
+            tabBarIcon: ({ color }) => (
+              <FontAwesome size={size} name="home" color={color} />
+            ),
           }}
         />
         <Tabs.Screen
@@ -25,7 +31,9 @@ export default function () {
           options={{
             title: 'Find',
             headerShown: false,
-            tabBarIcon: ({ color }) => <AntDesign name="find" size={size} color={color} />,
+            tabBarIcon: ({ color }) => (
+              <AntDesign name="find" size={size} color={color} />
+            ),
           }}
         />
         <Tabs.Screen
@@ -33,7 +41,9 @@ export default function () {
           options={{
             title: 'Create Event',
             headerShown: false,
-            tabBarIcon: ({ color }) => <FontAwesome6 name="add" size={24} color={color} />,
+            tabBarIcon: ({ color }) => (
+              <FontAwesome6 name="add" size={24} color={color} />
+            ),
           }}
         />
         <Tabs.Screen
@@ -41,7 +51,9 @@ export default function () {
           options={{
             title: 'My Events',
             headerShown: false,
-            tabBarIcon: ({ color }) => <Feather name="user-check" size={size} color={color} />,
+            tabBarIcon: ({ color }) => (
+              <Feather name="user-check" size={size} color={color} />
+            ),
           }}
         />
         <Tabs.Screen

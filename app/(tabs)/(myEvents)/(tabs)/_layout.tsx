@@ -1,19 +1,16 @@
-import { Stack, Tabs } from 'expo-router';
+import { Tabs } from 'expo-router';
+import { useRef } from 'react';
+import { useNavigation } from 'expo-router';
+import { SafeAreaView, View } from 'react-native';
 import MySearchBar from '@/components/ui/MySearchBar';
-import { Text, SafeAreaView, View } from 'react-native';
-import { useState } from 'react';
+import TabButton from '../TabButton';
 
 export default function MyEvents() {
-  const [currentTab, setCurrentTab] = useState<any>('CreatedList');
+  const currentTab = useRef('CreatedList');
   return (
     <SafeAreaView className="flex-1">
       <MySearchBar currentTab={currentTab} />
       <Tabs
-        screenListeners={{
-          tabPress: (e) => {
-            setCurrentTab(e.target?.split('-')[0]);
-          },
-        }}
         screenOptions={{
           tabBarPosition: 'top',
           tabBarIconStyle: { display: 'none' },
@@ -21,7 +18,7 @@ export default function MyEvents() {
             height: 40,
             paddingTop: 5,
             backgroundColor: 'transparent',
-            borderBottomWidth: 1,
+            borderBlockColor: 'transparent',
           },
           tabBarLabelStyle: {
             fontSize: 16,
@@ -33,6 +30,9 @@ export default function MyEvents() {
           options={{
             title: 'Created',
             headerShown: false,
+            tabBarButton: () => (
+              <TabButton tab={'CreatedList'} currentTab={currentTab} />
+            ),
           }}
         />
         <Tabs.Screen
@@ -41,6 +41,9 @@ export default function MyEvents() {
             title: 'Registered',
             headerShown: false,
             tabBarPosition: 'top',
+            tabBarButton: () => (
+              <TabButton tab={'RegList'} currentTab={currentTab} />
+            ),
           }}
         />
       </Tabs>

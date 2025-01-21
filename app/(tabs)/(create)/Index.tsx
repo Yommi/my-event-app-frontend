@@ -1,9 +1,12 @@
-import { Text, View, Dimensions } from 'react-native';
+import { SafeAreaView, View, ScrollView, Dimensions } from 'react-native';
 
 export default function Index() {
-  const { width, height } = Dimensions.get('window');
-
-  return <View></View>;
+  return (
+    <SafeAreaView>
+      <ScrollView></ScrollView>
+    </SafeAreaView>
+  );
 }
 
+const { width, height } = Dimensions.get('window');
 const styles = {};

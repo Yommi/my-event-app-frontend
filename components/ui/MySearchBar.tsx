@@ -2,17 +2,25 @@ import React, { useContext, useEffect } from 'react';
 import { TextInput, View, Dimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { MyEventsContext } from '../../app/MyEventsProvider';
-import { useRoute } from '@react-navigation/native';
 
 export default function MySearchBar({ currentTab }: any) {
-  const { fetchCreated, mySearchText, setMySearchText, createdPageRef } =
-    useContext(MyEventsContext)!;
+  const {
+    fetchCreated,
+    mySearchText,
+    setMySearchText,
+    createdPageRef,
+    regPageRef,
+    fetchRegList,
+  } = useContext(MyEventsContext)!;
 
   const handleSearch = (text: string) => {
     setMySearchText(text);
-    if (currentTab === 'CreatedList') {
+    if (currentTab.current === 'CreatedList') {
       createdPageRef.current = 1;
       fetchCreated(text);
+    } else {
+      regPageRef.current = 1;
+      fetchRegList(text);
     }
   };
 
@@ -31,6 +39,7 @@ export default function MySearchBar({ currentTab }: any) {
         <TextInput
           className={' text-white w-full h-full '}
           placeholder="Type to search..."
+          placeholderTextColor={'gray'}
           value={mySearchText}
           onChangeText={handleSearch}
         />
