@@ -18,14 +18,17 @@ export default function Index() {
     const checkToken = async () => {
       // await SecureStore.setItemAsync('userToken', '');
       const token = await SecureStore.getItemAsync('userToken');
-      setTimeout( async () => {
+      setTimeout(async () => {
         if (token) {
           try {
-            const response = await axios.get(`${extra.API_URL}/auth/checkToken`, {
-              headers: {
-                Authorization: `Bearer ${token}`,
+            const response = await axios.get(
+              `${extra.API_URL}/auth/checkToken`,
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
               },
-            });
+            );
             if (response.data.status === 'success') {
               router.push('/(tabs)/(find)');
             } else {
@@ -38,21 +41,19 @@ export default function Index() {
         } else {
           router.push('/(auth)/login');
         }
-    }, 5000)
-      
+      }, 5000);
     };
 
     checkToken();
   }, [router]); // The dependency array ensures that the effect is run when the component mounts
 
   return (
-    <SafeAreaView className='flex-1'>
-      <ImageBackground 
-      source={{ uri: `${extra.API_URL}/images/logo.jpg` }}
+    <SafeAreaView className="flex-1">
+      <ImageBackground
+        source={{ uri: `${extra.API_URL}/images/logo.jpg` }}
         resizeMode="cover"
-        className='m-auto p-20'
-      >
-      </ImageBackground>
+        className="m-auto p-20"
+      ></ImageBackground>
     </SafeAreaView>
   );
 }
